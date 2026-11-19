@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SCOUT — Esboço da Plataforma (Foundation V1.1)</title>
+  <style>
+    :root {
+      --navy: #0A192F;
+      --navy2: #14243A;
+      --teal: #26767A;
+      --teal2: #36979C;
+      --gold: #C5A059;
+      --gray: #E8EDF2;
+      --slate: #94A3B8;
+      --ice: #F5F7FA;
+      --bg: var(--navy);
+      --surface: var(--navy2);
+      --surface-2: #182d46;
+      --border: #223a56;
+      --text: var(--gray);
+      --muted: var(--slate);
+      --primary: var(--teal2);
+      --accent: var(--gold);
+      --success: #2f9e6e;
+      --danger: #d45b5b;
+      --warning: #d4a843;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; height: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+    }
+    a { color: var(--primary); }
+    .app { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: 250px;
+      background: #081424;
+      border-right: 1px solid var(--border);
+      padding: 18px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 10px; border-bottom: 1px solid var(--border); }
+    .brand-mark {
+      width: 34px; height: 34px; border-radius: 8px;
+      background: linear-gradient(135deg, var(--teal), var(--teal2));
+      display: grid; place-items: center; color: white; font-weight: 700; font-size: 14px;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.06) inset;
+    }
+    .brand-title { font-weight: 700; letter-spacing: 0.08em; font-size: 14px; }
+    .brand-sub { font-size: 11px; color: var(--muted); }
+    .nav { display: flex; flex-direction: column; gap: 4px; }
+    .nav-section { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; padding: 8px 10px 4px; }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 10px; border-radius: 8px; color: var(--text); text-decoration: none; font-size: 14px;
+      border: 1px solid transparent;
+    }
+    .nav-item:hover { background: rgba(54,151,156,0.08); border-color: rgba(54,151,156,0.18); }
+    .nav-item.active { background: rgba(54,151,156,0.16); border-color: rgba(54,151,156,0.35); color: #fff; }
+    .nav-item.muted { color: var(--muted); }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--slate); opacity: .7; }
+    .active .dot { background: var(--primary); opacity: 1; box-shadow: 0 0 0 4px rgba(54,151,156,0.15); }
+    .sidebar-footer { margin-top: auto; font-size: 12px; color: var(--muted); padding: 10px; border-top: 1px solid var(--border); }
+    .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    .header {
+      height: 58px; border-bottom: 1px solid var(--border); background: rgba(10,25,47,0.85);
+      display: flex; align-items: center; justify-content: space-between; padding: 0 20px; gap: 12px;
+      position: sticky; top: 0; backdrop-filter: blur(6px); z-index: 2;
+    }
+    .breadcrumbs { font-size: 13px; color: var(--muted); }
+    .breadcrumbs strong { color: var(--text); font-weight: 600; }
+    .header-right { display: flex; align-items: center; gap: 10px; }
+    .search {
+      background: #0d2036; border: 1px solid var(--border); color: #6f8198; padding: 7px 10px;
+      border-radius: 8px; font-size: 13px; min-width: 260px;
+    }
+    .pill {
+      font-size: 11px; padding: 4px 8px; border-radius: 999px; border: 1px solid var(--border);
+      color: var(--muted); background: #0d2036; white-space: nowrap;
+    }
+    .pill.gold { color: #f3ddb0; border-color: rgba(197,160,89,0.4); background: rgba(197,160,89,0.1); }
+    .content { padding: 22px; max-width: 1280px; width: 100%; }
+    .banner {
+      border: 1px dashed rgba(197,160,89,0.55);
+      background: rgba(197,160,89,0.08);
+      color: #f0dca8;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+    .page-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+    h1 { margin: 0 0 6px; font-size: 24px; font-weight: 650; }
+    .subtitle { margin: 0; color: var(--muted); font-size: 14px; max-width: 900px; }
+    .actions { display: flex; gap: 8px; }
+    .btn {
+      background: #0d2036; color: var(--text); border: 1px solid var(--border); padding: 8px 12px;
+      border-radius: 8px; font-size: 13px; cursor: default;
+    }
+    .btn.primary { background: rgba(54,151,156,0.18); border-color: rgba(54,151,156,0.45); color: #eaffff; }
+    .grid { display: grid; gap: 14px; }
+    .grid.cols-3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
+    .grid.cols-2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      min-width: 0;
+    }
+    .card h2 { margin: 0 0 4px; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; }
+    .card h3 { margin: 0 0 10px; font-size: 16px; font-weight: 600; }
+    .kv { display: grid; grid-template-columns: 150px 1fr; gap: 6px 10px; font-size: 13px; }
+    .k { color: var(--muted); }
+    .v { color: var(--text); overflow-wrap: anywhere; }
+    .badge {
+      display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px;
+      border: 1px solid var(--border); color: var(--text); background: #10263f;
+    }
+    .badge.ok { color: #c9f3df; border-color: rgba(47,158,110,.45); background: rgba(47,158,110,.15); }
+    .badge.info { color: #d7fbfd; border-color: rgba(54,151,156,.45); background: rgba(54,151,156,.15); }
+    .badge.warn { color: #f6e5ba; border-color: rgba(212,168,67,.45); background: rgba(212,168,67,.15); }
+    .section-title { margin: 22px 0 10px; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    .section-desc { margin: -4px 0 12px; color: var(--muted); font-size: 13px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; }
+    tr:last-child td { border-bottom: none; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; }
+    .muted { color: var(--muted); }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .list { display: flex; flex-direction: column; gap: 8px; }
+    .item { border: 1px solid var(--border); border-radius: 10px; padding: 10px; background: #10243c; }
+    .item-head { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; margin-bottom: 4px; }
+    .small { font-size: 12px; }
+    .footer-note { margin-top: 22px; color: var(--muted); font-size: 12px; border-top: 1px solid var(--border); padding-top: 14px; }
+    @media (max-width: 980px) {
+      .sidebar { display: none; }
+      .grid.cols-3, .grid.cols-2 { grid-template-columns: 1fr; }
+      .search { min-width: 140px; width: 140px; }
+      .page-head { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">S</div>
+        <div>
+          <div class="brand-title">SCOUT</div>
+          <div class="brand-sub">Strategic Intelligence</div>
+        </div>
+      </div>
+      <div class="nav">
+        <div class="nav-section">Visão geral</div>
+        <a class="nav-item muted" href="#"><span class="dot"></span> Foundation</a>
+        <div class="nav-section">Módulos</div>
+        <a class="nav-item muted" href="#"><span class="dot"></span> Radar</a>
+        <a class="nav-item muted" href="#"><span class="dot"></span> Dossiers</a>
+        <a class="nav-item muted" href="#"><span class="dot"></span> Knowledge Graph</a>
+        <a class="nav-item muted" href="#"><span class="dot"></span> Predictions</a>
+        <a class="nav-item muted" href="#"><span class="dot"></span> Scenario Lab</a>
+        <a class="nav-item muted" href="#"><span class="dot"></span> Action Center</a>
+        <a class="nav-item muted" href="#"><span class="dot"></span> Agent Control</a>
+        <a class="nav-item active" href="#"><span class="dot"></span> System</a>
+      </div>
+      <div class="sidebar-footer">
+        Local-first · loopback (127.0.0.1)<br/>
+        Foundation V1.1 (A–H)
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="header">
+        <div class="breadcrumbs">SCOUT / <strong>System</strong></div>
+        <div class="header-right">
+          <input class="search" value="Pesquisa global (em breve)" disabled />
+          <span class="pill">Tema: escuro</span>
+          <span class="pill gold">Esboço visual</span>
+        </div>
+      </header>
+
+      <div class="content">
+        <div class="banner">
+          <strong>Esboço visual estático (HTML)</strong> — representação ilustrativa da interface do SCOUT Foundation V1.1 para visualização/compartilhamento. <strong>Não conectado ao backend</strong>; os dados abaixo são exemplos de apresentação (não representam estado real em execução neste link). A plataforma real é local-first (loopback).
+        </div>
+
+        <div class="page-head">
+          <div>
+            <h1>System</h1>
+            <p class="subtitle">Estado da plataforma e monitoramento operacional de ingestão (fontes, conectores, jobs, runs, eventos e auditoria). Controles mínimos suportados pelo backend; no produto real sem simulações, sem inferência automática e sem módulos funcionais de domínio.</p>
+          </div>
+          <div class="actions">
+            <button class="btn">Atualizar</button>
+            <button class="btn primary">Foundation G/H</button>
+          </div>
+        </div>
+
+        <div class="grid cols-3">
+          <section class="card">
+            <h2>Plataforma</h2>
+            <h3>SCOUT Backend</h3>
+            <div class="kv">
+              <div class="k">Versão</div><div class="v">0.1.0-foundation</div>
+              <div class="k">Fase</div><div class="v"><span class="badge info">foundation-g</span></div>
+              <div class="k">Ambiente</div><div class="v">local (loopback)</div>
+              <div class="k">API</div><div class="v mono">/api/v1 · /docs</div>
+              <div class="k">Banco</div><div class="v">SQLite (fonte oficial)</div>
+            </div>
+          </section>
+          <section class="card">
+            <h2>Banco de dados</h2>
+            <h3>Estado e migração</h3>
+            <div class="kv">
+              <div class="k">Conexão</div><div class="v"><span class="badge ok">conectado</span></div>
+              <div class="k">Tabelas</div><div class="v">15 (schema Foundation)</div>
+              <div class="k">Alembic</div><div class="v mono">426757a848bb</div>
+              <div class="k">PRAGMAs</div><div class="v mono">foreign_keys=ON, WAL, busy_timeout=5000</div>
+              <div class="k">Storage</div><div class="v mono">backend/data/{db,raw,documents}</div>
+            </div>
+          </section>
+          <section class="card">
+            <h2>IA local e scheduler</h2>
+            <h3>Configuração (somente leitura)</h3>
+            <div class="kv">
+              <div class="k">Ollama</div><div class="v mono">http://127.0.0.1:11434</div>
+              <div class="k">Modelo ref.</div><div class="v">qwen3:4b</div>
+              <div class="k">Modo</div><div class="v">abstraction-availability-only (sob demanda)</div>
+              <div class="k">Inferência automática</div><div class="v"><span class="badge warn">desabilitada</span></div>
+              <div class="k">Scheduler</div><div class="v"><span class="badge">desabilitado (padrão)</span> · DB-canonical</div>
+            </div>
+          </section>
+        </div>
+
+        <div class="section-title">Source Manager e monitoramento de ingestão</div>
+        <p class="section-desc">Visão de conectores, fontes, jobs, runs, eventos de processamento e auditoria com controles mínimos reais no produto (testar conexão, criar/executar job, inspecionar histórico/erros).</p>
+
+        <div class="grid cols-2">
+          <section class="card">
+            <h2>Conectores registrados</h2>
+            <h3>1 conector</h3>
+            <div class="item">
+              <div class="item-head">
+                <div><strong>RSS/Atom</strong> <span class="mono muted">(rss_atom)</span></div>
+                <span class="badge ok">registrado</span>
+              </div>
+              <div class="small muted">Leitura real (somente metadados/títulos, máx. 5 itens, timeouts/limites). Conteúdo externo tratado como dado não confiável.</div>
+            </div>
+            <div style="height:10px"></div>
+            <h2>Fonte (Source Registry)</h2>
+            <h3>Exemplo de recurso autorizado</h3>
+            <div class="item">
+              <div class="item-head">
+                <div><strong>W3C News (feed)</strong> <span class="badge ok">ativa</span></div>
+                <span class="badge info">rss_atom</span>
+              </div>
+              <div class="small mono muted">https://www.w3.org/news/feed/</div>
+              <div class="small muted" style="margin-top:6px">Última coleta: registrada no histórico · Preservação de original: condicional (config/permissões/licença)</div>
+              <div class="row" style="margin-top:8px">
+                <button class="btn">Testar conexão</button>
+                <button class="btn primary">Criar/executar job</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="card">
+            <h2>Jobs e runs (exemplo)</h2>
+            <h3>Histórico rastreável</h3>
+            <table>
+              <thead>
+                <tr><th>Job</th><th>Status</th><th>Trigger</th><th>Run</th><th>Itens</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="mono">job_a1f3…</td>
+                  <td><span class="badge ok">succeeded</span></td>
+                  <td>manual</td>
+                  <td class="mono">run #1</td>
+                  <td>5 encontrados · 5 armazenados · 0 dedup</td>
+                </tr>
+                <tr>
+                  <td class="mono">job_a1f3…</td>
+                  <td><span class="badge ok">succeeded</span></td>
+                  <td>manual</td>
+                  <td class="mono">run #2</td>
+                  <td>5 encontrados · 0 armazenados · 5 dedup</td>
+                </tr>
+              </tbody>
+            </table>
+            <div style="height:10px"></div>
+            <h2>Eventos de processamento (exemplo)</h2>
+            <div class="list">
+              <div class="item small"><span class="badge info">job</span> created · <span class="muted">manual-ui</span></div>
+              <div class="item small"><span class="badge info">collect</span> succeeded · <span class="muted">rss_atom, 5 itens (metadados)</span></div>
+              <div class="item small"><span class="badge info">normalize_validate_dedupe_store</span> succeeded · <span class="muted">raw_records + data_changes</span></div>
+              <div class="item small"><span class="badge ok">run</span> succeeded · <span class="muted">pipeline mínimo rastreável</span></div>
+            </div>
+          </section>
+        </div>
+
+        <div class="grid cols-2" style="margin-top:14px">
+          <section class="card">
+            <h2>Auditoria recente (exemplo)</h2>
+            <h3>Rastreabilidade operacional</h3>
+            <table>
+              <thead>
+                <tr><th>Quando</th><th>Ação</th><th>Alvo</th><th>Severidade</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="muted">—</td>
+                  <td>source.test_connection</td>
+                  <td class="mono">source:…</td>
+                  <td><span class="badge info">info</span></td>
+                </tr>
+                <tr>
+                  <td class="muted">—</td>
+                  <td>collection_job.create</td>
+                  <td class="mono">job:…</td>
+                  <td><span class="badge info">info</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </section>
+          <section class="card">
+            <h2>Escopo Foundation</h2>
+            <h3>Áreas (8) — estado</h3>
+            <div class="list small">
+              <div class="item"><strong>Radar, Dossiers, Knowledge Graph, Predictions, Scenario Lab, Action Center, Agent Control</strong><br/><span class="muted">Placeholders (não implementados), sem simulação de dados/processamento.</span></div>
+              <div class="item"><strong>System</strong><br/><span class="muted">Implementado em escopo mínimo: estado real da plataforma e monitoramento operacional de ingestão (A–G) + validação/documentação (H).</span></div>
+              <div class="item"><strong>Restrições</strong><br/><span class="muted">Local/loopback, SQLite/Alembic, sem inferência automática, sem promoção de inferência a fato, sem paralelismo pesado, conteúdo externo não confiável.</span></div>
+            </div>
+          </section>
+        </div>
+
+        <div class="footer-note">
+          SCOUT — Personal Strategic Intelligence System (Foundation V1.1, A–H). Este arquivo é um <strong>esboço visual estático</strong> para compartilhamento.
+          Código-fonte e documentação: <a href="https://github.com/douradonicolas2005-stack/scout" target="_blank" rel="noopener">github.com/douradonicolas2005-stack/scout</a>.
+          Para execução real (local/loopback): seguir <span class="mono">README.md</span> do repositório.
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
