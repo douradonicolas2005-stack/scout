@@ -14,9 +14,9 @@ from app.ingestion.connectors.rss_atom import parse_feed
 from app.knowledge.models.domain import AuditEvent, ProcessingEvent
 from app.main import app
 
-# Decisão 4 (auto-aplicada por autorização explícita do usuário para prosseguir sem confirmação):
-# Recurso público RSS/Atom para teste/leitura real local (somente metadados/títulos, máx. 5 itens).
-# https://www.w3.org/news/feed/
+# Decisão 4 (confirmada pelo usuário): recurso público RSS/Atom de referência autorizado
+# para teste/leitura real local (somente metadados/títulos, máx. 5 itens, read-only).
+# Limites conservadores: https://www.w3.org/news/feed/
 W3C_NEWS_FEED_URL = "https://www.w3.org/news/feed/"
 
 

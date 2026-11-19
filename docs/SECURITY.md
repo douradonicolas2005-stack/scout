@@ -4,7 +4,7 @@
 
 ## Superfície e rede
 - Serviços vinculados a `127.0.0.1` (backend/frontend); sem exposição à internet.
-- Conexões de saída apenas para fontes autorizadas/configuradas e serviços locais (ex.: Ollama em loopback, verificação sob demanda). Testes de conexão e coletas do pipeline usam conectores configurados (recurso de referência atual auto-aplicado: `https://www.w3.org/news/feed/`, ver Decisão 4 em `INGESTION_ARCHITECTURE.md`) com HTTP read-only, timeouts e limites conservadores (incl. máx. de itens/tamanho).
+- Conexões de saída apenas para fontes autorizadas/configuradas e serviços locais (ex.: Ollama em loopback, verificação sob demanda). Testes de conexão e coletas do pipeline usam conectores configurados (recurso de referência **confirmado e autorizado**: `https://www.w3.org/news/feed/`, W3C News; ver Decisão 4 em `INGESTION_ARCHITECTURE.md`) com HTTP read-only, timeouts e limites conservadores (incl. máx. de itens/tamanho e coleta de metadados/títulos).
 
 ## Segredos e dados
 - Credenciais fora do código-fonte (`.env` gitignored). Fontes armazenam referências de autenticação (`auth_method`, `auth_credential_ref`) e não segredos em claro.
@@ -23,5 +23,5 @@
 - Ações sensíveis sob controle humano; nenhuma ação externa não autorizada nem envio de dados confidenciais a IA externa. Respeito a condições de acesso e licenciamento das fontes.
 
 ## Limitações conhecidas
-- Confirmação/substituição pendente do recurso de referência da Decisão 4 para continuidade operacional.
+- Recurso de referência da Decisão 4 confirmado (`https://www.w3.org/news/feed/`); eventual substituição ou inclusão de novas fontes requer autorização explícita e respeito a termos/licenças/permissões.
 - Controles operacionais avançados, políticas de retenção/gestão de credenciais e hardening adicional são escopo de etapas futuras aprovadas.

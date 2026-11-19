@@ -26,7 +26,7 @@ Monólito modular, **local-first**, com frontend e backend desacoplados. Serviç
 - **Scheduler/pipeline:** APScheduler (Background, conservador), estado/agendamento canônico no banco (`collection_jobs`), dispatch por tick, reidratação controlada quando habilitado, **desabilitado por padrão**, sem paralelismo pesado. Pipeline mínimo operacional com coleta real (`rss_atom`), validação/deduplicação, `raw_records`, `processing_events`, `data_changes`, retries conservadores.
 - **IA local:** Ollama como abstração + configuração + verificação de disponibilidade sob demanda; **sem inferência automática** e sem promoção automática de inferência a fato.
 - **Ingestão/UI operacional:** Source Registry/conectores plugáveis, teste real de conexão/leitura mínima e monitoramento/controles mínimos em **System** consumindo contratos reais (sem simulações).
-- **Decisão 4 (pendente confirmação/substituição):** recurso público de referência `https://www.w3.org/news/feed/` auto-aplicado para testes/coleta real local (RSS, metadados/títulos, máx. 5 itens, read-only), após URLs inválidas/placeholders e autorização explícita prévia para prosseguir automaticamente.
+- **Decisão 4 (confirmada):** recurso público de referência autorizado `https://www.w3.org/news/feed/` (RSS, W3C News) para testes/coleta real local (metadados/títulos, máx. 5 itens, read-only, timeouts/limites conservadores), conforme confirmação explícita do usuário; substituição futura requer nova autorização.
 
 ## Limites da Foundation
 As 8 áreas de produto (além da visão/monitoramento mínimo em System) permanecem sem implementação funcional de domínio/inteligência/predição/simulação; evolução para `documents`/claims/evidências/entidades/relacionamentos e controles avançados depende de etapas aprovadas.

@@ -37,7 +37,7 @@
 - **Implementado:** `audit_events` (criação/atualização/teste de fontes, criação de jobs); `processing_events` (testes de conexão e estágios de job/run: `job`, `identify`, `collect`, `normalize_validate_dedupe_store`, `run`); `collection_jobs`, `collection_runs`, `raw_records` e `data_changes` no fluxo de coleta mínima.
 - **Parcial/futuro:** uso operacional completo de `documents`, enriquecimento de metadados de publicação/ocorrência/validade quando disponíveis, histórico/monitoramento operacional ampliado e controles avançados.
 
-## Decisão 4 — conector/fonte de referência real
-- **Situação:** URLs fornecidas anteriormente eram inválidas/placeholders. Com autorização explícita do usuário para prosseguir automaticamente sem confirmação, foi **auto-aplicado** um recurso público de referência para testes/coleta real local: **`https://www.w3.org/news/feed/`** (RSS, público, W3C News).
-- **Restrições aplicadas:** leitura somente de metadados/títulos, **máx. 5 itens**, timeouts/limites, sem preservação de corpo/conteúdo completo nos testes/pipeline padrão.
-- **Ação recomendada:** confirmar explicitamente se este recurso deve permanecer autorizado para continuidade ou substituí-lo por outro RSS/Atom/HTTP GET autorizado.
+## Decisão 4 — conector/fonte de referência real (confirmada)
+- **Recurso confirmado e autorizado:** `https://www.w3.org/news/feed/` (RSS, público, W3C News), confirmado explicitamente pelo usuário para continuidade como fonte/recurso de referência em testes/coleta real local. (Contexto: URLs fornecidas anteriormente eram inválidas/placeholders e o recurso havia sido auto-aplicado com autorização prévia para prosseguir automaticamente.)
+- **Restrições aplicadas e mantidas:** leitura somente de metadados/títulos/links/ids/datas, **máx. 5 itens**, timeouts e limites de tamanho/resposta; sem preservação de corpo/conteúdo completo nos testes/pipeline padrão (preservação condicional apenas quando explicitamente permitida por configuração/permissões/licença).
+- **Evolução:** eventual substituição por outro RSS/Atom/HTTP GET ou inclusão de novas fontes requer autorização explícita e validação de termos/licenças/permissões.

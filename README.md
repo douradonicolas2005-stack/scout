@@ -66,10 +66,11 @@ npm run lint
 npm run build
 ```
 
-> **Nota:** a suíte de testes backend inclui operações HTTP reais de leitura (somente metadados/títulos, limites conservadores) contra o recurso de referência da **Decisão 4** auto-aplicado: `https://www.w3.org/news/feed/` (pendente de confirmação/substituição explícita).
+> **Nota:** a suíte de testes backend inclui operações HTTP reais de leitura (somente metadados/títulos, limites conservadores) contra o recurso de referência da **Decisão 4** confirmado: `https://www.w3.org/news/feed/` (W3C News, feed público, autorizado para continuidade nos limites atuais; substituição futura requer autorização explícita).
 
-## Decisão pendente
-- **Decisão 4 (conector/fonte de referência):** recurso público `https://www.w3.org/news/feed/` auto-aplicado após URLs iniciais inválidas/placeholders, com autorização explícita prévia para prosseguir automaticamente; recomenda-se **confirmar** permanência ou **substituir** por outro RSS/Atom/HTTP GET explicitamente autorizado.
+## Decisão 4 (confirmada)
+- **Conector/fonte de referência (`rss_atom`):** confirmado e autorizado pelo usuário o recurso público `https://www.w3.org/news/feed/` (RSS, W3C News) para testes/leitura/coleta real local de referência.
+- **Restrições mantidas:** somente leitura, metadados/títulos/links/ids/datas, **máx. 5 itens**, timeouts e limites de tamanho; sem preservação de corpo/conteúdo completo no pipeline padrão (preservação condicional apenas quando explicitamente permitida por configuração/permissões/licença). Substituição futura requer nova autorização explícita.
 
 ## Estado
 - **A–H:** concluídos no escopo da Foundation V1.1 (infraestrutura, schema/migração, UI base/integração, Source Registry/conector real, pipeline/scheduler mínimo rastreável, monitoramento operacional mínimo em System, validações e documentação).

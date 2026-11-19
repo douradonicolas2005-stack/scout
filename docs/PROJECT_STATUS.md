@@ -1,6 +1,6 @@
 # PROJECT_STATUS — SCOUT (Foundation V1.1)
 
-> **Data:** 2026-11-19 · **Fase:** **Subetapa H concluída** (testes, documentação e validação final). Runtime/API: `foundation-g`. Foundation V1.1 (A–H) concluída no escopo definido, aguardando aceite do usuário e confirmação/substituição da Decisão 4. **Não avançar automaticamente** para pós-Foundation.
+> **Data:** 2026-11-19 · **Fase:** **Subetapa H concluída** (testes, documentação e validação final). Runtime/API: `foundation-g`. Foundation V1.1 (A–H) concluída no escopo definido. **Decisão 4 confirmada** pelo usuário (recurso de referência `https://www.w3.org/news/feed/`, limites conservadores). **Não avançar automaticamente** para pós-Foundation.
 
 ## Resumo executivo
 SCOUT Foundation V1.1 em `scout/` (decisão **1b**, V0 substituído) está implementada e validada como monólito modular **local-first** (loopback, SQLite/Alembic, sem simulações e sem inferência automática). Subetapas A–G entregaram infraestrutura full-stack, schema de 15 entidades, integração frontend-backend de estado, Source Registry/conector real `rss_atom`, pipeline mínimo rastreável de coleta com scheduler conservador (estado canônico no banco, desabilitado por padrão) e monitoramento operacional mínimo em **System**. Subetapa H consolidou os 9 documentos, reforçou validações e registrou limitações/decisões pendentes, sem ampliar escopo funcional de domínio/inteligência/predição.
@@ -12,10 +12,11 @@ SCOUT Foundation V1.1 em `scout/` (decisão **1b**, V0 substituído) está imple
 - **5:** Ollama — abstração + configuração + verificação de disponibilidade sob demanda; **sem inferência automática** em testes/execução.
 - **6:** `pyproject.toml` + `requirements.txt`/`requirements-dev.txt` pinados.
 
-## Decisão pendente
-- **4 — Recurso de referência real (auto-aplicada, pendente de confirmação/substituição explícita):** URLs iniciais (`https://exemplo.org/feed.xml`, `https://<dominio>/<feed>.xml`) eram inválidas/placeholders. Com autorização explícita prévia para prosseguir automaticamente sem confirmação, foi utilizado **`https://www.w3.org/news/feed/`** (RSS/Atom, público, W3C News) para teste/leitura/coleta real local.
-  - **Restrições:** somente leitura, metadados/títulos, **máx. 5 itens**, timeouts e limite de tamanho; sem preservação de corpo/conteúdo completo nos testes/pipeline padrão (preservação condicional apenas quando explicitamente permitida por configuração/permissões/licença).
-  - **Status:** validado funcionalmente nas Subetapas E/F/G e exercitado pela suíte de testes backend existente. **Confirmar** permanência ou **substituir** por RSS/Atom/HTTP GET explicitamente autorizado.
+## Decisão 4 (confirmada)
+- **4 — Recurso de referência real (confirmado e autorizado):** `https://www.w3.org/news/feed/` (RSS/Atom, público, W3C News) confirmado explicitamente pelo usuário como fonte/recurso de referência para testes/leitura/coleta real local do conector `rss_atom`.
+  - **Contexto:** URLs iniciais (`https://exemplo.org/feed.xml`, `https://<dominio>/<feed>.xml`) eram inválidas/placeholders; o recurso havia sido auto-aplicado com autorização prévia para prosseguir automaticamente e foi validado nas Subetapas E/F/G.
+  - **Restrições mantidas:** somente leitura, metadados/títulos/links/ids/datas, **máx. 5 itens**, timeouts e limite de tamanho; sem preservação de corpo/conteúdo completo nos testes/pipeline padrão (preservação condicional apenas quando explicitamente permitida por configuração/permissões/licença).
+  - **Evolução:** eventual substituição por outro RSS/Atom/HTTP GET ou inclusão de novas fontes requer nova autorização explícita e validação de termos/licenças/permissões.
 
 ## Implementado (por subetapa)
 
@@ -72,7 +73,7 @@ SCOUT Foundation V1.1 em `scout/` (decisão **1b**, V0 substituído) está imple
 
 **Notas de validação:**
 - Suíte backend preservada (health/config/db/system, registry/CRUD/teste real de conexão, pipeline real, deduplicação, `execute_now=false`, dispatch do scheduler a partir do banco) com expectativas de fase `foundation-g`.
-- A suíte inclui acesso HTTP real de leitura (metadados/títulos, limites conservadores) ao recurso da Decisão 4 (`https://www.w3.org/news/feed/`), conforme validações estabelecidas em E/F/G.
+- A suíte inclui acesso HTTP real de leitura (metadados/títulos, limites conservadores) ao recurso da Decisão 4 confirmado (`https://www.w3.org/news/feed/`, W3C News), conforme validações estabelecidas em E/F/G.
 - Não foram executados testes E2E de navegador automatizados nem testes manuais interativos de UI nesta sessão, além das verificações estáticas/build do frontend.
 
 ## Arquivos alterados/criados relevantes (estado consolidado)
@@ -92,12 +93,12 @@ SCOUT Foundation V1.1 em `scout/` (decisão **1b**, V0 substituído) está imple
 ## Problemas encontrados e correções (síntese)
 - **G/H (frontend):** erros de TypeScript/lint/build em `SystemPage.tsx` (uso de `toLower()` e `res.run` possivelmente nulo) e corrupção de estrutura JSX em patch programático subsequente; corrigidos com tratamento defensivo e restauração de componente íntegro. Resultado: `typecheck/lint/build` **OK**.
 - **F:** ajustes de `ruff/mypy`, compatibilidade `Optional` (Python 3.9) e re-fetch após rollback no tratamento de erro do pipeline; suíte **OK**.
-- **E:** URLs iniciais da Decisão 4 inválidas/placeholders (auto-aplicação autorizada de recurso público) e ajustes de lint/tipagem; testes reais **OK**.
+- **E:** URLs iniciais da Decisão 4 inválidas/placeholders (auto-aplicação autorizada de recurso público, posteriormente confirmado pelo usuário) e ajustes de lint/tipagem; testes reais **OK**.
 - **B–D:** correções pontuais de migração/env, tipagem/lint e reaplicação de edições frontend; verificações **OK** nas respectivas etapas.
 - **Estado atual:** nenhuma falha de verificação remanescente conhecida no escopo validado.
 
 ## Limitações e pendências
-- **Decisão 4 pendente:** confirmar/substituir `https://www.w3.org/news/feed/`.
+- **Decisão 4:** confirmada (`https://www.w3.org/news/feed/`, `rss_atom`, limites conservadores). Eventual substituição/inclusão de novas fontes requer autorização explícita.
 - **Banco local:** preparar com `cd backend && .venv/bin/alembic upgrade head` (sem novas migrações em E/F/G/H).
 - **Monitoramento/UI (mínimo):** implementado em **System**; sem CRUD completo de fontes no frontend, sem controles avançados (cancelamento/edição/agendamento rico, filtros/paginação/métricas consolidadas), sem UI dedicada fora de System.
 - **Pipeline/domínio:** sem `documents` derivados, extração/claims/evidências/entidades/relacionamentos e encaminhamento completo; sem inferência automática e sem promoção de inferência a fato.
@@ -112,5 +113,5 @@ SCOUT Foundation V1.1 em `scout/` (decisão **1b**, V0 substituído) está imple
 
 ## Conclusão (Foundation V1.1)
 - **Escopo A–H:** concluído e validado conforme critérios da Foundation (infraestrutura local, rastreabilidade, controles conservadores, contratos reais, sem simulações e sem inferência automática).
-- **Próximo passo:** aguardando **aceite do usuário** e **confirmação/substituição da Decisão 4**. Qualquer evolução pós-Foundation (controles/monitoramento avançados, domínio/extração/grafo, módulos funcionais, inteligência/predição) requer escopo e aprovação explícitos.
+- **Próximo passo:** aguardando **aceite/autorização explícita do usuário** para evolução pós-Foundation (controles/monitoramento avançados, domínio/extração/grafo, módulos funcionais, inteligência/predição) ou demais ações (ex.: correções, publicação/commit). Não avançar automaticamente.
 - **Não avançarei automaticamente.**

@@ -21,8 +21,8 @@ from app.knowledge.models.domain import (
 )
 from app.main import app
 
-# Decisão 4 (auto-aplicada, pendente de confirmação explícita): recurso público real para
-# teste/leitura local (somente metadados/títulos, máx. 5 itens, read-only).
+# Decisão 4 (confirmada pelo usuário): recurso público de referência autorizado para
+# teste/leitura local (somente metadados/títulos, máx. 5 itens, read-only, limites conservadores).
 W3C_NEWS_FEED_URL = "https://www.w3.org/news/feed/"
 
 
