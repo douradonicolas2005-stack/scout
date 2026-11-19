@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* SCOUT palette (HSL tokens) — Light */
+    --background: 210 33% 97%;          /* #F5F7FA */
+    --foreground: 216 65% 11%;          /* #0A192F */
+    --card: 0 0% 100%;
+    --card-foreground: 216 65% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 216 65% 11%;
+    --primary: 183 62% 29%;             /* #26767A */
+    --primary-foreground: 210 33% 97%;
+    --secondary: 213 30% 90%;           /* soft from #E8EDF2 */
+    --secondary-foreground: 214 49% 15%;
+    --muted: 213 30% 90%;
+    --muted-foreground: 215 20% 46%;    /* #94A3B8 tuned for contrast */
+    --accent: 40 48% 56%;               /* #C5A059 */
+    --accent-foreground: 216 65% 11%;
+    --destructive: 0 72% 45%;
+    --destructive-foreground: 210 33% 97%;
+    --border: 214 25% 84%;
+    --input: 214 25% 84%;
+    --ring: 183 48% 41%;                /* #36979C */
+    --radius: 0.5rem;
+
+    --scout-navy: #0A192F;
+    --scout-navy-2: #14243A;
+    --scout-teal: #26767A;
+    --scout-teal-2: #36979C;
+    --scout-gold: #C5A059;
+    --scout-gray: #E8EDF2;
+    --scout-slate: #94A3B8;
+    --scout-ice: #F5F7FA;
+  }
+
+  .dark {
+    /* SCOUT palette — Dark */
+    --background: 216 65% 11%;          /* #0A192F */
+    --foreground: 213 30% 90%;          /* #E8EDF2 */
+    --card: 214 49% 15%;                /* #14243A */
+    --card-foreground: 213 30% 90%;
+    --popover: 214 49% 15%;
+    --popover-foreground: 213 30% 90%;
+    --primary: 183 48% 41%;             /* #36979C */
+    --primary-foreground: 216 65% 11%;
+    --secondary: 214 42% 20%;
+    --secondary-foreground: 213 30% 90%;
+    --muted: 214 42% 20%;
+    --muted-foreground: 215 20% 65%;    /* #94A3B8 */
+    --accent: 40 48% 56%;               /* #C5A059 */
+    --accent-foreground: 216 65% 11%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 213 30% 90%;
+    --border: 214 35% 24%;
+    --input: 214 35% 24%;
+    --ring: 183 48% 41%;
+  }
+
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  .app-shell {
+    @apply min-h-screen bg-background text-foreground;
+  }
+}
