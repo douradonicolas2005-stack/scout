@@ -30,8 +30,8 @@ export const NAV_ITEMS: NavItem[] = [
     path: "/dossiers",
     label: "Dossiers",
     icon: FolderSearch,
-    description: "Dossiês e consolidação de contexto por entidade.",
-    implemented: false,
+    description: "Perfis de entidades (D1): cadastro, pesquisa, consulta e detecção de duplicidades. Subetapas D2–D5 pendentes.",
+    implemented: true,
   },
   {
     path: "/knowledge-graph",

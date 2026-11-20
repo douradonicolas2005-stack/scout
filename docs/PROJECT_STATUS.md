@@ -71,10 +71,26 @@ SCOUT Foundation V1.1 em `scout/` (decisão **1b**, V0 substituído) está imple
 | 6 | Frontend — build | `npm run build` | **OK** (1627 módulos) |
 | 7 | Schema/migração | Reutilização do schema existente (sem nova migração) | **OK** — `426757a848bb foundation_b_schema` |
 
-**Notas de validação:**
-- Suíte backend preservada (health/config/db/system, registry/CRUD/teste real de conexão, pipeline real, deduplicação, `execute_now=false`, dispatch do scheduler a partir do banco) com expectativas de fase `foundation-g`.
-- A suíte inclui acesso HTTP real de leitura (metadados/títulos, limites conservadores) ao recurso da Decisão 4 confirmado (`https://www.w3.org/news/feed/`, W3C News), conforme validações estabelecidas em E/F/G.
-- Não foram executados testes E2E de navegador automatizados nem testes manuais interativos de UI nesta sessão, além das verificações estáticas/build do frontend.
+## Dossiers V1.0 — D1: Entity Profiles (implementado, autorizado)
+
+- **Modelo/migração (aditiva):** extensão de `entities` (`description`, `profile_status`, `primary_location`, `profile_data`) e novas tabelas `entity_identifiers`, `entity_aliases` (Alembic `b7d1e2f3a4c5`, filha de `426757a848bb`), com índices/FKs; sem duplicação de estruturas de proveniência.
+- **Backend/API:** `/api/v1/dossiers/entities` — criar, listar/pesquisar (nome/alternativo/identificador, tipo, status, verificação, atualização, paginação/sort), detalhar, atualizar, sugerir duplicidades (somente leitura, sem fusão automática). Rastreabilidade: `audit_events` (`dossier.entity.create/update`) e `data_changes` (`entities`).
+- **Frontend:** home Dossiers com pesquisa/filtros/listas e blocos de recentes (API + consultas recentes no cliente, sem simulação); página `/dossiers/:entityId` com cabeçalho, seções Visão geral/Informações funcionais e seções futuras (D3–D5) sem simulação; criação/edição e painel de duplicidades.
+- **Documentação:** `docs/modules/dossiers/{DOSSIERS_SPECIFICATION,DATA_MODEL,API,UI,TEST_PLAN,CHANGELOG}.md`.
+- **Validação D1:** `ruff check --no-cache app tests` OK, `mypy --cache-dir /tmp/opencode-scout-mypy-cache app` OK (58 arquivos), `pytest -v` **23 passed** (inclui 5 novos testes D1 em DB temporário + regressão Foundation), frontend `typecheck/lint/build` OK (1629 módulos). Migração aplicada no DB local (`alembic upgrade head` → `b7d1e2f3a4c5`).
+
+## Dossiers V1.0 — D2: Research & Evidence (implementado, autorizado; passo 10)
+
+- **Modelo/migrações (aditivas, pós-`b7d1e2f3a4c5`):** `research_sources` (M1 `c1d2e3f4a5b6`), extensão de `documents` + `document_entity_links` (M2 `d2e3f4a5b6c7`), extensão de `extracted_claims` + `claim_entity_links` (M3 `e3f4a5b6c7d8`), `claim_conflicts` (M4 `f4a5b6c7d8e9`), extensão de `evidence` (M5 `a5b6c7d8e9f0`). Cadeia validada com `alembic upgrade head` em banco temporário (head `a5b6c7d8e9f0`); **não aplicada ao DB local** nesta etapa.
+- **Backend/API (determinístico, manual-first):** serviços/schemas/endpoints sob `/api/v1/dossiers` para fontes de pesquisa, documentos/referências e vínculos a entidades, afirmações (classificação epistemológica/verificação/confiança/justificativa), evidências (relação suporta/contesta/contextualiza, âncoras/localização) e conflitos entre afirmações (registro/atualização explícita, recomputo determinístico), além de resumo do Research Workspace. Rastreabilidade via `audit_events`/`data_changes` e `processing_events` quando aplicável. Sem promoção automática de inferência/hipótese/previsão a fato, sem coleta/agentes automáticos e sem dependências pagas/comerciais obrigatórias.
+- **Frontend:** Research Workspace na seção “Pesquisa e evidências” da página da entidade (`/dossiers/:entityId`) com abas de resumo, documentos, fontes, afirmações/evidências e conflitos, formulários/estados reais e rotulagem epistemológica; D3–D5 permanecem como placeholders sem simulação.
+- **Testes:** novo `backend/tests/unit/test_dossiers_research.py` (migração D2, CRUD/listagens, vínculos/âncoras, guarda epistemológica, evidências, conflitos e resumo) executado em DB temporário/offline.
+- **Documentação:** `docs/modules/dossiers/{DOSSIERS_DATA_MODEL,API,UI,TEST_PLAN,CHANGELOG}.md` e docs de projeto (`DATA_MODEL`, `API`, `ROADMAP`, `PROJECT_STATUS`) atualizados conforme escopo entregue.
+- **Validação D2 (regressão incluída):** backend `ruff check --no-cache app tests` OK, `mypy --config-file pyproject.toml app` OK (66 arquivos), `pytest -v` **27 passed** (Foundation + D1 + D2, incluindo 4 novos testes D2; suíte executada nesta sessão com testes legados de acesso HTTP real ao recurso da Decisão 4 passando no ambiente). Frontend `npm run typecheck` OK, `npm run lint` OK, `npm run build` OK (1631 módulos).
+
+**Notas:**
+- D2 implementado no working tree, **sem commit/push** e **sem aplicar migrações D2 ao `scout/backend/data/scout.db` local** (head local permanece `b7d1e2f3a4c5`). Arquivos de storage/dados permanecem gitignored.
+- Escopo restrito a D2: D3–D5/D6, fusão automática, derivação automática a partir de ingestão, agentes/coleta autônoma e integrações comerciais obrigatórias permanecem fora de escopo.
 
 ## Arquivos alterados/criados relevantes (estado consolidado)
 

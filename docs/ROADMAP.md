@@ -15,7 +15,15 @@
 ## Decisão 4 (confirmada)
 - **Recurso de referência autorizado:** `https://www.w3.org/news/feed/` (RSS, público, W3C News), confirmado pelo usuário para continuidade como fonte/conector de referência em testes/coleta real local, com limites conservadores (read-only, metadados/títulos, máx. 5 itens, timeouts/tamanho). Substituição futura requer autorização explícita.
 
-## Pós-Foundation (não iniciado, sujeito a aprovação)
-- Evolução de ingestão/domínio: `documents`, extração/claims/evidências/entidades/relacionamentos, monitoramento e controles operacionais avançados.
-- Módulos funcionais: Radar, Dossiers, Knowledge Graph, Predictions, Scenario Lab, Action Center, Agent Control, System completo.
+## Dossiers V1.0 (incremental, pós-Foundation)
+- **D1 — Entity Profiles (concluída, autorizada):** perfis/cadastro/edição/pesquisa/consulta/detecção de duplicidades (sem fusão), UI home e página da entidade (seções futuras sem simulação), migração aditiva `b7d1e2f3a4c5`, testes e docs em `docs/modules/dossiers/`.
+- **D2 — Research & Evidence (concluída, autorizada, implementada no working tree):** fontes de pesquisa, documentos/referências, afirmações (classificação epistemológica), evidências e conflitos com proveniência/rastreabilidade e Research Workspace determinístico (manual-first, sem promoção automática a fato). Migrações aditivas `c1d2e3f4a5b6`→`a5b6c7d8e9f0` (validadas em DB temporário; aplicação no DB local pendente de autorização), API/UI/testes/docs atualizados.
+- **D3 — Relationship History (pendente):** interações e linha do tempo (declarado/observado/interpretado/a confirmar).
+- **D4 — Connections (pendente):** relações entre entidades com temporalidade/evidências e visualização simplificada.
+- **D5 — Strategic Insights (pendente):** hipóteses/oportunidades fundamentadas, sem execução automática.
+- **D6 — Consolidação (pendente):** refinamento e integração do módulo.
+
+## Demais evoluções (não iniciadas, sujeitas a aprovação)
+- Evolução de ingestão/domínio: `documents`, extração/claims/evidências/encaminhamento completo; monitoramento e controles operacionais avançados.
+- Módulos funcionais: Radar, Knowledge Graph, Predictions, Scenario Lab, Action Center, Agent Control, System completo.
 - Inteligência de domínio e capacidades preditivas/simulações, sempre com controle humano, rastreabilidade e restrições de segurança/performance preservadas.

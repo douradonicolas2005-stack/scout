@@ -1,14 +1,40 @@
 import type {
+  AuditEventListResponse,
+  ClaimConflictCreatePayload,
+  ClaimConflictListResponse,
+  ClaimConflictSummary,
+  ClaimConflictUpdatePayload,
+  ClaimCreatePayload,
+  ClaimDetail,
+  ClaimListResponse,
+  ClaimUpdatePayload,
   CollectionJobCreate,
   CollectionJobListResponse,
   CollectionRunListResponse,
   ConnectorListResponse,
   DbStatusResponse,
+  DocumentCreatePayload,
+  DocumentDetail,
+  DocumentListResponse,
+  DocumentUpdatePayload,
+  DuplicateCandidatesResponse,
+  EntityCreatePayload,
+  EntityDetail,
+  EntityListResponse,
+  EntityUpdatePayload,
+  EvidenceCreatePayload,
+  EvidenceDetail,
+  EvidenceListResponse,
+  EvidenceUpdatePayload,
   HealthResponse,
   JobExecutionResponse,
   ProcessingEventListResponse,
+  ResearchSourceCreatePayload,
+  ResearchSourceDetail,
+  ResearchSourceListResponse,
+  ResearchSourceUpdatePayload,
+  ResearchSummaryResponse,
   SourceListResponse,
-  AuditEventListResponse,
   SourceTestConnectionResponse,
   SystemInfoResponse,
 } from "./types";
@@ -41,12 +67,12 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return (await res.json()) as T;
 }
 
-function qs(params: Record<string, string | undefined>): string {
+function qs(params: Record<string, string | number | undefined>): string {
   const entries = Object.entries(params).filter(
-    (entry): entry is [string, string] => entry[1] !== undefined && entry[1] !== "",
+    (entry): entry is [string, string | number] => entry[1] !== undefined && entry[1] !== "",
   );
   if (!entries.length) return "";
-  return `?${new URLSearchParams(entries).toString()}`;
+  return `?${new URLSearchParams(entries.map(([k, v]) => [k, String(v)])).toString()}`;
 }
 
 export const api = {
@@ -89,6 +115,172 @@ export const api = {
 
   listAuditEvents: (limit = 50) =>
     request<AuditEventListResponse>(`/api/v1/system/audit-events${qs({ limit: String(limit) })}`),
+
+  // Dossiers D1
+  listEntities: (params?: {
+    q?: string;
+    entity_type?: string;
+    profile_status?: string;
+    verification_status?: string;
+    sort?: string;
+    limit?: number;
+    offset?: number;
+  }) => request<EntityListResponse>(`/api/v1/dossiers/entities${qs(params ?? {})}`),
+  getEntity: (entityId: string) =>
+    request<EntityDetail>(`/api/v1/dossiers/entities/${encodeURIComponent(entityId)}`),
+  createEntity: (payload: EntityCreatePayload) =>
+    request<EntityDetail>("/api/v1/dossiers/entities", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+  updateEntity: (entityId: string, payload: EntityUpdatePayload) =>
+    request<EntityDetail>(`/api/v1/dossiers/entities/${encodeURIComponent(entityId)}`, {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+    }),
+  listDuplicateCandidates: (entityId: string, limit = 10) =>
+    request<DuplicateCandidatesResponse>(
+      `/api/v1/dossiers/entities/${encodeURIComponent(entityId)}/duplicate-candidates${qs({ limit })}`,
+    ),
+  // Dossiers D2 - Research & Evidence
+  createResearchSource: (payload: ResearchSourceCreatePayload) =>
+    request<ResearchSourceDetail>("/api/v1/dossiers/research-sources", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+  listResearchSources: (params?: {
+    q?: string;
+    source_type?: string;
+    classification?: string;
+    reliability_status?: string;
+    verification_status?: string;
+    sort?: string;
+    limit?: number;
+    offset?: number;
+  }) => {
+    const qs = new URLSearchParams();
+    if (params?.q) qs.set("q", params.q);
+    if (params?.source_type) qs.set("source_type", params.source_type);
+    if (params?.classification) qs.set("classification", params.classification);
+    if (params?.reliability_status) qs.set("reliability_status", params.reliability_status);
+    if (params?.verification_status) qs.set("verification_status", params.verification_status);
+    if (params?.sort) qs.set("sort", params.sort);
+    if (params?.limit != null) qs.set("limit", String(params.limit));
+    if (params?.offset != null) qs.set("offset", String(params.offset));
+    const suffix = qs.toString() ? `?${qs.toString()}` : "";
+    return request<ResearchSourceListResponse>(`/api/v1/dossiers/research-sources${suffix}`);
+  },
+  getResearchSource: (sourceId: string) =>
+    request<ResearchSourceDetail>(`/api/v1/dossiers/research-sources/${encodeURIComponent(sourceId)}`),
+  updateResearchSource: (sourceId: string, payload: ResearchSourceUpdatePayload) =>
+    request<ResearchSourceDetail>(`/api/v1/dossiers/research-sources/${encodeURIComponent(sourceId)}`, {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+    }),
+
+  createDocument: (entityId: string, payload: DocumentCreatePayload) =>
+    request<DocumentDetail>(`/api/v1/dossiers/entities/${encodeURIComponent(entityId)}/documents`, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+  listEntityDocuments: (entityId: string, params?: {
+    q?: string;
+    document_type?: string;
+    verification_status?: string;
+    origin_type?: string;
+    sort?: string;
+    limit?: number;
+    offset?: number;
+  }) => {
+    const qs = new URLSearchParams();
+    if (params?.q) qs.set("q", params.q);
+    if (params?.document_type) qs.set("document_type", params.document_type);
+    if (params?.verification_status) qs.set("verification_status", params.verification_status);
+    if (params?.origin_type) qs.set("origin_type", params.origin_type);
+    if (params?.sort) qs.set("sort", params.sort);
+    if (params?.limit != null) qs.set("limit", String(params.limit));
+    if (params?.offset != null) qs.set("offset", String(params.offset));
+    const suffix = qs.toString() ? `?${qs.toString()}` : "";
+    return request<DocumentListResponse>(`/api/v1/dossiers/entities/${encodeURIComponent(entityId)}/documents${suffix}`);
+  },
+  getDocument: (documentId: string) =>
+    request<DocumentDetail>(`/api/v1/dossiers/documents/${encodeURIComponent(documentId)}`),
+  updateDocument: (documentId: string, payload: DocumentUpdatePayload) =>
+    request<DocumentDetail>(`/api/v1/dossiers/documents/${encodeURIComponent(documentId)}`, {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+    }),
+
+  createClaim: (entityId: string, payload: ClaimCreatePayload) =>
+    request<ClaimDetail>(`/api/v1/dossiers/entities/${encodeURIComponent(entityId)}/claims`, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+  listEntityClaims: (entityId: string, params?: {
+    q?: string;
+    claim_type?: string;
+    verification_status?: string;
+    conflict_status?: string;
+    sort?: string;
+    limit?: number;
+    offset?: number;
+  }) => {
+    const qs = new URLSearchParams();
+    if (params?.q) qs.set("q", params.q);
+    if (params?.claim_type) qs.set("claim_type", params.claim_type);
+    if (params?.verification_status) qs.set("verification_status", params.verification_status);
+    if (params?.conflict_status) qs.set("conflict_status", params.conflict_status);
+    if (params?.sort) qs.set("sort", params.sort);
+    if (params?.limit != null) qs.set("limit", String(params.limit));
+    if (params?.offset != null) qs.set("offset", String(params.offset));
+    const suffix = qs.toString() ? `?${qs.toString()}` : "";
+    return request<ClaimListResponse>(`/api/v1/dossiers/entities/${encodeURIComponent(entityId)}/claims${suffix}`);
+  },
+  getClaim: (claimId: string) =>
+    request<ClaimDetail>(`/api/v1/dossiers/claims/${encodeURIComponent(claimId)}`),
+  updateClaim: (claimId: string, payload: ClaimUpdatePayload) =>
+    request<ClaimDetail>(`/api/v1/dossiers/claims/${encodeURIComponent(claimId)}`, {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+    }),
+
+  createClaimConflict: (claimId: string, payload: ClaimConflictCreatePayload) =>
+    request<ClaimConflictSummary>(`/api/v1/dossiers/claims/${encodeURIComponent(claimId)}/conflicts`, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+  updateClaimConflict: (claimId: string, conflictId: string, payload: ClaimConflictUpdatePayload) =>
+    request<ClaimConflictSummary>(`/api/v1/dossiers/claims/${encodeURIComponent(claimId)}/conflicts/${encodeURIComponent(conflictId)}`, {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+    }),
+  listEntityConflicts: (entityId: string, params?: { status?: string; limit?: number; offset?: number }) => {
+    const qs = new URLSearchParams();
+    if (params?.status) qs.set("status", params.status);
+    if (params?.limit != null) qs.set("limit", String(params.limit));
+    if (params?.offset != null) qs.set("offset", String(params.offset));
+    const suffix = qs.toString() ? `?${qs.toString()}` : "";
+    return request<ClaimConflictListResponse>(`/api/v1/dossiers/entities/${encodeURIComponent(entityId)}/conflicts${suffix}`);
+  },
+
+  createEvidence: (claimId: string, payload: EvidenceCreatePayload) =>
+    request<EvidenceDetail>(`/api/v1/dossiers/claims/${encodeURIComponent(claimId)}/evidence`, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+  listClaimEvidence: (claimId: string) =>
+    request<EvidenceListResponse>(`/api/v1/dossiers/claims/${encodeURIComponent(claimId)}/evidence`),
+  getEvidence: (evidenceId: string) =>
+    request<EvidenceDetail>(`/api/v1/dossiers/evidence/${encodeURIComponent(evidenceId)}`),
+  updateEvidence: (evidenceId: string, payload: EvidenceUpdatePayload) =>
+    request<EvidenceDetail>(`/api/v1/dossiers/evidence/${encodeURIComponent(evidenceId)}`, {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+    }),
+
+  getResearchSummary: (entityId: string) =>
+    request<ResearchSummaryResponse>(`/api/v1/dossiers/entities/${encodeURIComponent(entityId)}/research/summary`),
+
 };
 
 export type ApiClient = typeof api;

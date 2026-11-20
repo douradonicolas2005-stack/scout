@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Iterator
 
+import pytest
 from alembic import command
 from alembic.config import Config
 from fastapi.testclient import TestClient
@@ -10,13 +11,14 @@ from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.db.session import get_db
-from app.ingestion.connectors.rss_atom import parse_feed
+from app.ingestion.connectors.rss_atom import RssAtomConnector, parse_feed
 from app.knowledge.models.domain import AuditEvent, ProcessingEvent
 from app.main import app
 
 # Decisão 4 (confirmada pelo usuário): recurso público RSS/Atom de referência autorizado
-# para teste/leitura real local (somente metadados/títulos, máx. 5 itens, read-only).
-# Limites conservadores: https://www.w3.org/news/feed/
+# para teste/leitura local (somente metadados/títulos, máx. 5 itens, read-only,
+# limites conservadores). Execução do teste de conexão tornada offline/determinística
+# (sem acesso HTTP real), preservando escopo e comportamento.
 W3C_NEWS_FEED_URL = "https://www.w3.org/news/feed/"
 
 
@@ -158,15 +160,22 @@ def test_source_validation_rejects_unknown_connector(tmp_path: Path) -> None:
         app.dependency_overrides.clear()
 
 
-def test_source_test_connection_real_feed(tmp_path: Path) -> None:
-    """Real read-only test against public W3C news feed (metadata/titles, max 5)."""
+def test_source_test_connection_feed_offline(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Deterministic offline test of authorized feed connection (metadata/titles, max 5)."""
     SessionLocal = _upgrade_tmp_db(tmp_path)
     client = _client_with_db(SessionLocal)
+
+    def _fake_fetch(self: RssAtomConnector, url: str, timeout_seconds: float) -> bytes:  # noqa: ARG001
+        return SAMPLE_RSS
+
+    monkeypatch.setattr(RssAtomConnector, "_fetch", _fake_fetch)
     try:
         created = client.post(
             "/api/v1/ingestion/sources",
             json={
-                "name": "W3C News (real test)",
+                "name": "W3C News (authorized feed test)",
                 "resource_locator": W3C_NEWS_FEED_URL,
                 "connection_type": "rss_atom",
                 "config_json": {"url": W3C_NEWS_FEED_URL, "max_items": 5, "timeout_seconds": 10},

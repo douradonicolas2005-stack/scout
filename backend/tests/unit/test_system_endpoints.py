@@ -60,9 +60,14 @@ def test_system_info_returns_modules_and_metadata(tmp_path: Path) -> None:
             "system",
         }
         assert keys == expected_keys
+        modules_by_key = {m["key"]: m for m in body["modules"]}
+        # D1 (Entity Profiles) delivered: Dossiers in development with partial implementation.
+        assert modules_by_key["dossiers"]["status"] == "in_development"
+        assert modules_by_key["dossiers"]["implemented"] is True
         assert all(
             m["status"] == "placeholder" and m["implemented"] is False
             for m in body["modules"]
+            if m["key"] != "dossiers"
         )
     finally:
         app.dependency_overrides.clear()

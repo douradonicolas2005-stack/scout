@@ -20,7 +20,13 @@ router = APIRouter()
 
 MODULES: List[ModuleStatus] = [
     ModuleStatus(key="radar", label="Radar", path="/radar"),
-    ModuleStatus(key="dossiers", label="Dossiers", path="/dossiers"),
+    ModuleStatus(
+        key="dossiers",
+        label="Dossiers",
+        path="/dossiers",
+        status="in_development",
+        implemented=True,
+    ),
     ModuleStatus(key="knowledge-graph", label="Knowledge Graph", path="/knowledge-graph"),
     ModuleStatus(key="predictions", label="Predictions", path="/predictions"),
     ModuleStatus(key="scenario-lab", label="Scenario Lab", path="/scenario-lab"),

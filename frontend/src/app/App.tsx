@@ -3,6 +3,7 @@ import { AppShell } from "@/components/layout/AppShell";
 import { DashboardPage } from "@/pages/DashboardPage";
 import { RadarPage } from "@/pages/RadarPage";
 import { DossiersPage } from "@/pages/DossiersPage";
+import { DossierEntityPage } from "@/pages/DossierEntityPage";
 import { KnowledgeGraphPage } from "@/pages/KnowledgeGraphPage";
 import { PredictionsPage } from "@/pages/PredictionsPage";
 import { ScenarioLabPage } from "@/pages/ScenarioLabPage";
@@ -17,6 +18,7 @@ export default function App() {
         <Route index element={<DashboardPage />} />
         <Route path="radar" element={<RadarPage />} />
         <Route path="dossiers" element={<DossiersPage />} />
+        <Route path="dossiers/:entityId" element={<DossierEntityPage />} />
         <Route path="knowledge-graph" element={<KnowledgeGraphPage />} />
         <Route path="predictions" element={<PredictionsPage />} />
         <Route path="scenario-lab" element={<ScenarioLabPage />} />

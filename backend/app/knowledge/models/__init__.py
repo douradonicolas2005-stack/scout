@@ -1,35 +1,47 @@
-"""ORM models (Foundation B)."""
+"""ORM models (Foundation B, D1, D2)."""
 
 from app.knowledge.models.domain import (  # noqa: F401
     AgentRun,
     AuditEvent,
+    ClaimConflict,
+    ClaimEntityLink,
     CollectionJob,
     CollectionRun,
     Connector,
     DataChange,
     Document,
+    DocumentEntityLink,
     Entity,
+    EntityAlias,
+    EntityIdentifier,
     Evidence,
     ExtractedClaim,
     ProcessingEvent,
     RawRecord,
     Relationship,
+    ResearchSource,
     Source,
 )
 
 __all__ = [
     "AgentRun",
     "AuditEvent",
+    "ClaimConflict",
+    "ClaimEntityLink",
     "CollectionJob",
     "CollectionRun",
     "Connector",
     "DataChange",
     "Document",
+    "DocumentEntityLink",
     "Entity",
+    "EntityAlias",
+    "EntityIdentifier",
     "Evidence",
     "ExtractedClaim",
     "ProcessingEvent",
     "RawRecord",
     "Relationship",
+    "ResearchSource",
     "Source",
 ]

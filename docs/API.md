@@ -16,7 +16,7 @@ Liveness/identidade do serviço.
 **Resposta 200 (`HealthResponse`):** `status`, `service`, `version`, `environment`, `phase` (`foundation-g`), `timestamp`.
 
 ### `GET /api/v1/system/info`
-Metadados do sistema, configuração de alto nível e registro das 8 áreas funcionais (todas `placeholder` na Foundation).
+Metadados do sistema, configuração de alto nível e registro das 8 áreas funcionais.
 
 **Resposta 200 (`SystemInfoResponse`, campos principais):**
 - `app_name`, `version`, `phase` (`foundation-g`), `environment`
@@ -24,8 +24,9 @@ Metadados do sistema, configuração de alto nível e registro das 8 áreas func
 - `database`: `"sqlite"`
 - `ollama`: `{ base_url, model, mode: "abstraction-availability-only" }`
 - `scheduler`: `{ enabled, max_concurrent_jobs, state }` — estado canônico no banco; quando desabilitado `db-canonical-ready`, quando habilitado `db-canonical` (dispatch conservador, sem paralelismo pesado).
-- `modules[]`: 8 itens `{ key, label, path, status: "placeholder", implemented: false }`
-  - `radar`, `dossiers`, `knowledge-graph`, `predictions`, `scenario-lab`, `action-center`, `agent-control`, `system`
+- `modules[]`: 8 itens `{ key, label, path, status, implemented }`
+  - `dossiers`: `status="in_development"`, `implemented=true` (D1 — Entity Profiles e D2 — Research & Evidence entregues; D3–D5 pendentes)
+  - demais (`radar`, `knowledge-graph`, `predictions`, `scenario-lab`, `action-center`, `agent-control`, `system`): `placeholder` / `implemented=false` (Foundation)
 - `timestamp`
 
 ### `GET /api/v1/db/status`
@@ -84,7 +85,27 @@ Lista eventos de auditoria recentes (`audit_events`) para rastreabilidade operac
 ## Monitoramento operacional (Subetapa G, mínimo)
 - A área **System** (frontend) consome os contratos acima para visão de conectores/fontes/jobs/runs/eventos e auditoria, com controles mínimos reais (teste de conexão, criação/execução de jobs) e estados loading/erro/vazio/sucesso, sem simulações.
 
-## Fora de escopo atual (pós-Foundation, sujeito a aprovação)
+## Dossiers (D1 + D2, implementado)
+
+Base: `/api/v1/dossiers` (detalhes em `docs/modules/dossiers/DOSSIERS_API.md`).
+
+### D1 — Entity Profiles
+- **`POST /entities`** (`201`) — cria entidade/perfil com normalização e rastreabilidade (`audit_events`/`data_changes`).
+- **`GET /entities`** — lista/pesquisa local (filtros: `q`, `entity_type`, `profile_status`, `verification_status`, `updated_from/to`, `sort`, paginação).
+- **`GET /entities/{entity_id}`** — detalhe (perfil + identificadores/aliases).
+- **`PATCH /entities/{entity_id}`** — atualização parcial com rastreabilidade.
+- **`GET /entities/{entity_id}/duplicate-candidates`** — sugestões de duplicidade (somente leitura, sem fusão automática).
+
+### D2 — Research & Evidence (determinístico/manual-first)
+- **Fontes de pesquisa:** `POST /research-sources`, `GET /research-sources`, `GET/PATCH /research-sources/{source_id}`.
+- **Documentos:** `POST /entities/{entity_id}/documents`, `GET /entities/{entity_id}/documents`, `GET/PATCH /documents/{document_id}`, `POST /documents/{document_id}/entities` (registro com âncora de proveniência e vínculos a entidades).
+- **Afirmações:** `POST /entities/{entity_id}/claims`, `GET /entities/{entity_id}/claims`, `GET/PATCH /claims/{claim_id}` (classificação epistemológica/verificação/justificativa, sem promoção automática a fato).
+- **Conflitos:** `POST /claims/{claim_id}/conflicts`, `PATCH /claims/{claim_id}/conflicts/{conflict_id}`, `GET /entities/{entity_id}/conflicts` (registro/atualização explícita, sem resolução automática).
+- **Evidências:** `POST /claims/{claim_id}/evidence`, `GET /claims/{claim_id}/evidence`, `GET/PATCH /evidence/{evidence_id}` (relação suporta/contesta/contextualiza, âncoras/localização rastreável).
+- **Workspace:** `GET /entities/{entity_id}/research/summary` (indicadores determinísticos).
+
+## Fora de escopo atual (pendente de autorização)
 - CRUD completo de fontes e controles operacionais avançados no frontend; filtros/paginação/métricas consolidadas e monitoramento analítico ampliado.
-- Evolução do pipeline para `documents`, extração/claims/evidências/entidades/relacionamentos e encaminhamento para inteligência/predição.
-- APIs/contratos de módulos funcionais de domínio (Radar, Dossiers, Knowledge Graph, Predictions, Scenario Lab, Action Center, Agent Control).
+- Evolução do pipeline de ingestão para derivação automática de `documents`, extração/claims/evidências/entidades/relacionamentos e encaminhamento para inteligência/predição.
+- Dossiers D3–D5 (Relationship History, Connections, Strategic Insights) e D6; fusão automática de entidades; upload remoto/integrações comerciais obrigatórias.
+- APIs/contratos dos demais módulos funcionais de domínio (Radar, Knowledge Graph, Predictions, Scenario Lab, Action Center, Agent Control).

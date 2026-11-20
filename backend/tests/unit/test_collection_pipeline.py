@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Iterator
 
+import pytest
 from alembic import command
 from alembic.config import Config
 from fastapi.testclient import TestClient
@@ -11,6 +12,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from app.db.session import get_db
 from app.ingestion.collection import create_collection_job, execute_collection_job
+from app.ingestion.connectors.rss_atom import RssAtomConnector
 from app.ingestion.scheduler import IngestionScheduler
 from app.knowledge.models.domain import (
     CollectionJob,
@@ -22,8 +24,30 @@ from app.knowledge.models.domain import (
 from app.main import app
 
 # Decisão 4 (confirmada pelo usuário): recurso público de referência autorizado para
-# teste/leitura local (somente metadados/títulos, máx. 5 itens, read-only, limites conservadores).
+# teste/leitura local (somente metadados/títulos, máx. 5 itens, read-only,
+# limites conservadores). Execução dos testes tornada offline/determinística
+# (sem acesso HTTP real), preservando escopo e comportamento.
 W3C_NEWS_FEED_URL = "https://www.w3.org/news/feed/"
+
+SAMPLE_RSS = (
+    b"<?xml version='1.0'?>"
+    b"<rss version='2.0'><channel><title>W3C News (fixture)</title>"
+    b"<item><title>Item One</title><link>https://www.w3.org/news/item-1/</link>"
+    b"<guid>item-1</guid><pubDate>Tue, 17 Nov 2026 12:20:00 +0000</pubDate></item>"
+    b"<item><title>Item Two</title><link>https://www.w3.org/news/item-2/</link>"
+    b"<guid>item-2</guid><pubDate>Wed, 18 Nov 2026 09:00:00 +0000</pubDate></item>"
+    b"</channel></rss>"
+)
+
+
+@pytest.fixture(autouse=True)
+def _offline_rss_fetch(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Avoid real HTTP/network access while keeping connector parsing/behavior deterministic."""
+
+    def _fake_fetch(self: RssAtomConnector, url: str, timeout_seconds: float) -> bytes:  # noqa: ARG001
+        return SAMPLE_RSS
+
+    monkeypatch.setattr(RssAtomConnector, "_fetch", _fake_fetch)
 
 
 def _upgrade_tmp_db(tmp_path: Path) -> sessionmaker[Session]:

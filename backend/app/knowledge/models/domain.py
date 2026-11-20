@@ -64,9 +64,7 @@ class Source(Base, TimestampMixin):
     frequency: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     status: Mapped[str] = mapped_column(String(50), nullable=False, default="inactive", index=True)
     last_collected_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
-    next_collect_at: Mapped[Optional[datetime]] = mapped_column(
-        DateTime(timezone=True), index=True
-    )
+    next_collect_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), index=True)
     config_json: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON, nullable=True)
     permissions_json: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON, nullable=True)
     terms_conditions: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
@@ -156,26 +154,42 @@ class RawRecord(Base):
     )
 
 
-class Document(Base):
+class Document(Base, TimestampMixin):
     __tablename__ = "documents"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
-    source_id: Mapped[str] = mapped_column(
-        String(36), ForeignKey("sources.id", ondelete="CASCADE"), nullable=False, index=True
+    source_id: Mapped[Optional[str]] = mapped_column(
+        String(36), ForeignKey("sources.id", ondelete="CASCADE"), nullable=True, index=True
     )
     raw_record_id: Mapped[Optional[str]] = mapped_column(
         String(36), ForeignKey("raw_records.id", ondelete="SET NULL"), index=True
     )
+    research_source_id: Mapped[Optional[str]] = mapped_column(
+        String(36), ForeignKey("research_sources.id", ondelete="SET NULL"), index=True
+    )
     title: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    document_type: Mapped[Optional[str]] = mapped_column(String(100), nullable=True, index=True)
+    description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    origin_type: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    source_locator: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     mime_type: Mapped[Optional[str]] = mapped_column(String(200), nullable=True)
     storage_path: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     checksum: Mapped[Optional[str]] = mapped_column(String(128), nullable=True)
+    content_hash: Mapped[Optional[str]] = mapped_column(String(128), nullable=True, index=True)
     size_bytes: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     language: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
     published_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+    occurred_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+    captured_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     collected_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_utcnow, nullable=False
     )
+    verification_status: Mapped[str] = mapped_column(
+        String(50), nullable=False, default=VerificationStatus.NAO_VERIFICADO.value
+    )
+    access_level: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    license_terms: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    is_reference_only: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     metadata_json: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON, nullable=True)
 
 
@@ -183,8 +197,17 @@ class ExtractedClaim(Base, TimestampMixin):
     __tablename__ = "extracted_claims"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
-    source_id: Mapped[str] = mapped_column(
-        String(36), ForeignKey("sources.id", ondelete="CASCADE"), nullable=False, index=True
+    source_id: Mapped[Optional[str]] = mapped_column(
+        String(36), ForeignKey("sources.id", ondelete="CASCADE"), nullable=True, index=True
+    )
+    entity_id: Mapped[Optional[str]] = mapped_column(
+        String(36), ForeignKey("entities.id", ondelete="SET NULL"), nullable=True, index=True
+    )
+    research_source_id: Mapped[Optional[str]] = mapped_column(
+        String(36),
+        ForeignKey("research_sources.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
     )
     raw_record_id: Mapped[Optional[str]] = mapped_column(
         String(36), ForeignKey("raw_records.id", ondelete="SET NULL"), index=True
@@ -197,22 +220,29 @@ class ExtractedClaim(Base, TimestampMixin):
     claim_type: Mapped[str] = mapped_column(
         String(50), nullable=False, default=ClaimType.DECLARACAO.value, index=True
     )
+    claim_origin: Mapped[str] = mapped_column(String(50), nullable=False, default="manual")
     confidence: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    justification: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     verification_status: Mapped[str] = mapped_column(
         String(50), nullable=False, default=VerificationStatus.NAO_VERIFICADO.value
+    )
+    conflict_status: Mapped[str] = mapped_column(
+        String(50), nullable=False, default="none", index=True
     )
     version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     supersedes_claim_id: Mapped[Optional[str]] = mapped_column(
         String(36), ForeignKey("extracted_claims.id", ondelete="SET NULL"), nullable=True
     )
+    registered_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     published_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     collected_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     occurred_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     valid_from: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     valid_to: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+    metadata_json: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON, nullable=True)
 
 
-class Evidence(Base):
+class Evidence(Base, TimestampMixin):
     __tablename__ = "evidence"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
@@ -222,23 +252,35 @@ class Evidence(Base):
         nullable=False,
         index=True,
     )
-    source_id: Mapped[str] = mapped_column(
-        String(36), ForeignKey("sources.id", ondelete="CASCADE"), nullable=False, index=True
+    source_id: Mapped[Optional[str]] = mapped_column(
+        String(36), ForeignKey("sources.id", ondelete="CASCADE"), nullable=True, index=True
     )
     raw_record_id: Mapped[Optional[str]] = mapped_column(
         String(36), ForeignKey("raw_records.id", ondelete="SET NULL"), index=True
     )
+    document_id: Mapped[Optional[str]] = mapped_column(
+        String(36), ForeignKey("documents.id", ondelete="SET NULL"), nullable=True, index=True
+    )
+    research_source_id: Mapped[Optional[str]] = mapped_column(
+        String(36),
+        ForeignKey("research_sources.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    evidence_type: Mapped[Optional[str]] = mapped_column(String(100), nullable=True, index=True)
+    relation_type: Mapped[str] = mapped_column(
+        String(50), nullable=False, default="supports", index=True
+    )
     locator: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    location_json: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON, nullable=True)
     snippet: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    excerpt: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     note: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     published_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     collected_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     confidence: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
     verification_status: Mapped[str] = mapped_column(
         String(50), nullable=False, default=VerificationStatus.NAO_VERIFICADO.value
-    )
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=_utcnow, nullable=False
     )
 
 
@@ -249,6 +291,12 @@ class Entity(Base, TimestampMixin):
     entity_type: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
     canonical_name: Mapped[str] = mapped_column(String(500), nullable=False)
     normalized_name: Mapped[str] = mapped_column(String(500), nullable=False, index=True)
+    description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)  # D1
+    profile_status: Mapped[str] = mapped_column(
+        String(50), nullable=False, default="active", index=True
+    )  # D1
+    primary_location: Mapped[Optional[str]] = mapped_column(String(300), nullable=True)  # D1
+    profile_data: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON, nullable=True)  # D1
     attributes_json: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON, nullable=True)
     confidence: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
     verification_status: Mapped[str] = mapped_column(
@@ -259,6 +307,123 @@ class Entity(Base, TimestampMixin):
     source_first_id: Mapped[Optional[str]] = mapped_column(
         String(36), ForeignKey("sources.id", ondelete="SET NULL"), nullable=True
     )
+
+
+class EntityIdentifier(Base, TimestampMixin):
+    __tablename__ = "entity_identifiers"
+    __table_args__ = (Index("ix_entity_identifiers_type_norm", "id_type", "normalized_value"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
+    entity_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("entities.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    id_type: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
+    value: Mapped[str] = mapped_column(String(500), nullable=False)
+    normalized_value: Mapped[str] = mapped_column(String(500), nullable=False, index=True)
+    is_primary: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    metadata_json: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON, nullable=True)
+
+
+class EntityAlias(Base, TimestampMixin):
+    __tablename__ = "entity_aliases"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
+    entity_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("entities.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    name: Mapped[str] = mapped_column(String(500), nullable=False)
+    normalized_name: Mapped[str] = mapped_column(String(500), nullable=False, index=True)
+    alias_type: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+
+
+# --- Dossiers D2: Research & Evidence ---
+
+
+class ResearchSource(Base, TimestampMixin):
+    __tablename__ = "research_sources"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
+    name: Mapped[str] = mapped_column(String(300), nullable=False)
+    source_type: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
+    domain: Mapped[Optional[str]] = mapped_column(String(255), nullable=True, index=True)
+    url: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    classification: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    consulted_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+    last_verified_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True), index=True
+    )
+    reliability_status: Mapped[str] = mapped_column(
+        String(50), nullable=False, default="nao_avaliada", index=True
+    )
+    reliability_justification: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    verification_status: Mapped[str] = mapped_column(
+        String(50), nullable=False, default=VerificationStatus.NAO_VERIFICADO.value, index=True
+    )
+    ingestion_source_id: Mapped[Optional[str]] = mapped_column(
+        String(36), ForeignKey("sources.id", ondelete="SET NULL"), nullable=True, index=True
+    )
+    metadata_json: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON, nullable=True)
+    created_by: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+
+
+class DocumentEntityLink(Base):
+    __tablename__ = "document_entity_links"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
+    document_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("documents.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    entity_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("entities.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    role: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
+
+
+class ClaimEntityLink(Base):
+    __tablename__ = "claim_entity_links"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
+    claim_id: Mapped[str] = mapped_column(
+        String(36),
+        ForeignKey("extracted_claims.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    entity_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("entities.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    relevance: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
+
+
+class ClaimConflict(Base, TimestampMixin):
+    __tablename__ = "claim_conflicts"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
+    claim_id: Mapped[str] = mapped_column(
+        String(36),
+        ForeignKey("extracted_claims.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    conflicting_claim_id: Mapped[str] = mapped_column(
+        String(36),
+        ForeignKey("extracted_claims.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    conflict_type: Mapped[str] = mapped_column(String(100), nullable=False)
+    description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    status: Mapped[str] = mapped_column(String(50), nullable=False, default="open", index=True)
+    detected_by: Mapped[str] = mapped_column(String(50), nullable=False, default="user")
+    created_by: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
 
 
 class Relationship(Base, TimestampMixin):
