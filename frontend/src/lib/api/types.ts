@@ -680,3 +680,124 @@ export interface InteractionSummaryResponse {
   latest_occurred_at: string | null;
 }
 
+
+// Dossiers D4 - Connections
+export type ConnectionDirectionality = "directed" | "undirected";
+export type ConnectionNature = "declarado" | "observado" | "inferido" | "a_confirmar";
+export type ConnectionVerificationStatus = "nao_verificado" | "verificado" | "contestado";
+export type ConnectionStatus = "active" | "needs_review" | "inactive" | "archived";
+export type ConnectionTimePrecision = "exact" | "month" | "year" | "estimated" | "unknown";
+
+export interface ConnectionEntitySummary {
+  id: string;
+  canonical_name: string;
+  entity_type: string;
+  profile_status: string | null;
+}
+
+export interface TaxonomyRelationType {
+  id: string;
+  category: string;
+  name: string;
+  description: string;
+  directionality: ConnectionDirectionality;
+  from_entity_types: string[];
+  to_entity_types: string[];
+  status_mvp: "approved" | "requires_review" | "blocked_by_model" | "deferred" | string;
+  inverse_label: string | null;
+  symmetric_label: string | null;
+  inverse_type_id: string | null;
+  notes: string | null;
+}
+
+export interface ConnectionCreatePayload {
+  relation_type: string;
+  from_entity_id?: string | null;
+  to_entity_id?: string | null;
+  other_entity_id?: string | null;
+  anchor_role?: "from" | "to" | null;
+  directionality?: ConnectionDirectionality | null;
+  nature?: ConnectionNature | null;
+  verification_status?: ConnectionVerificationStatus | null;
+  status?: ConnectionStatus | null;
+  description?: string | null;
+  justification?: string | null;
+  source_locator?: string | null;
+  occurred_at?: string | null;
+  valid_from?: string | null;
+  valid_to?: string | null;
+  time_precision?: ConnectionTimePrecision | null;
+  claim_id?: string | null;
+  evidence_id?: string | null;
+  confidence?: number | null;
+  attributes_json?: Record<string, unknown> | null;
+  created_by: string;
+}
+
+export type ConnectionUpdatePayload = Partial<Omit<ConnectionCreatePayload, "created_by">>;
+
+export interface ConnectionSummary {
+  id: string;
+  from_entity_id: string;
+  to_entity_id: string;
+  relation_type: string;
+  relation_type_name: string | null;
+  category: string | null;
+  directionality: ConnectionDirectionality | string;
+  nature: string | null;
+  verification_status: string | null;
+  status: string | null;
+  occurred_at: string | null;
+  valid_from: string | null;
+  valid_to: string | null;
+  time_precision: string | null;
+  confidence: number | null;
+  claim_id: string | null;
+  evidence_id: string | null;
+  source_locator: string | null;
+  created_at: string;
+  updated_at: string;
+  from_entity: ConnectionEntitySummary | null;
+  to_entity: ConnectionEntitySummary | null;
+  counterpart_entity: ConnectionEntitySummary | null;
+  perspective: "outgoing" | "incoming" | "undirected" | null;
+  perspective_label: string | null;
+  has_evidence: boolean;
+}
+
+export interface ConnectionDetail extends ConnectionSummary {
+  description: string | null;
+  justification: string | null;
+  attributes_json: Record<string, unknown> | null;
+  created_by: string | null;
+  inverse_label: string | null;
+  symmetric_label: string | null;
+  inverse_type_id: string | null;
+}
+
+export interface ConnectionListResponse {
+  items: ConnectionSummary[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+export interface ConnectionSummaryResponse {
+  entity_id: string;
+  connections_count: number;
+  by_nature: Record<string, number>;
+  by_verification_status: Record<string, number>;
+  by_status: Record<string, number>;
+  by_type: Record<string, number>;
+  by_category: Record<string, number>;
+  outgoing_count: number;
+  incoming_count: number;
+  undirected_count: number;
+  with_evidence_count: number;
+}
+
+export interface ConnectionTaxonomyResponse {
+  items: TaxonomyRelationType[];
+  approved_count: number;
+  total: number;
+}

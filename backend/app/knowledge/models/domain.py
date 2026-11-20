@@ -488,6 +488,9 @@ class Relationship(Base, TimestampMixin):
         String(36), ForeignKey("entities.id", ondelete="CASCADE"), nullable=False, index=True
     )
     relation_type: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
+    directionality: Mapped[str] = mapped_column(
+        String(20), nullable=False, default="directed"
+    )
     attributes_json: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON, nullable=True)
     claim_id: Mapped[Optional[str]] = mapped_column(
         String(36), ForeignKey("extracted_claims.id", ondelete="SET NULL"), nullable=True
@@ -496,12 +499,21 @@ class Relationship(Base, TimestampMixin):
         String(36), ForeignKey("evidence.id", ondelete="SET NULL"), nullable=True
     )
     confidence: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    nature: Mapped[str] = mapped_column(String(30), nullable=False, default="declarado")
     verification_status: Mapped[str] = mapped_column(
         String(50), nullable=False, default=VerificationStatus.NAO_VERIFICADO.value
     )
+    status: Mapped[str] = mapped_column(
+        String(30), nullable=False, default="active", index=True
+    )
+    description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    justification: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    source_locator: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     occurred_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     valid_from: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     valid_to: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+    time_precision: Mapped[Optional[str]] = mapped_column(String(30), nullable=True)
+    created_by: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
 
 
 class DataChange(Base):

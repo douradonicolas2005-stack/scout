@@ -11,6 +11,12 @@ import type {
   CollectionJobCreate,
   CollectionJobListResponse,
   CollectionRunListResponse,
+  ConnectionCreatePayload,
+  ConnectionDetail,
+  ConnectionListResponse,
+  ConnectionSummaryResponse,
+  ConnectionTaxonomyResponse,
+  ConnectionUpdatePayload,
   ConnectorListResponse,
   DbStatusResponse,
   DocumentCreatePayload,
@@ -72,9 +78,9 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return (await res.json()) as T;
 }
 
-function qs(params: Record<string, string | number | undefined>): string {
+function qs(params: Record<string, string | number | boolean | undefined>): string {
   const entries = Object.entries(params).filter(
-    (entry): entry is [string, string | number] => entry[1] !== undefined && entry[1] !== "",
+    (entry): entry is [string, string | number | boolean] => entry[1] !== undefined && entry[1] !== "",
   );
   if (!entries.length) return "";
   return `?${new URLSearchParams(entries.map(([k, v]) => [k, String(v)])).toString()}`;
@@ -321,6 +327,51 @@ export const api = {
   getInteractionsSummary: (entityId: string) =>
     request<InteractionSummaryResponse>(
       `/api/v1/dossiers/entities/${encodeURIComponent(entityId)}/interactions/summary`,
+    ),
+
+  // Dossiers D4 - Connections
+  getConnectionsTaxonomy: () =>
+    request<ConnectionTaxonomyResponse>(`/api/v1/dossiers/connections/taxonomy`),
+  createConnection: (entityId: string, payload: ConnectionCreatePayload) =>
+    request<ConnectionDetail>(
+      `/api/v1/dossiers/entities/${encodeURIComponent(entityId)}/connections`,
+      { method: "POST", body: JSON.stringify(payload) },
+    ),
+  listEntityConnections: (
+    entityId: string,
+    params?: {
+      direction?: string;
+      relation_type?: string;
+      category?: string;
+      nature?: string;
+      verification_status?: string;
+      status?: string;
+      occurred_from?: string;
+      occurred_to?: string;
+      valid_from?: string;
+      valid_to?: string;
+      has_evidence?: boolean;
+      q?: string;
+      sort?: string;
+      limit?: number;
+      offset?: number;
+    },
+  ) =>
+    request<ConnectionListResponse>(
+      `/api/v1/dossiers/entities/${encodeURIComponent(entityId)}/connections${qs(params ?? {})}`,
+    ),
+  getConnection: (connectionId: string, anchorEntityId?: string) =>
+    request<ConnectionDetail>(
+      `/api/v1/dossiers/connections/${encodeURIComponent(connectionId)}${qs(anchorEntityId ? { anchor_entity_id: anchorEntityId } : {})}`,
+    ),
+  updateConnection: (connectionId: string, payload: ConnectionUpdatePayload, anchorEntityId?: string) =>
+    request<ConnectionDetail>(
+      `/api/v1/dossiers/connections/${encodeURIComponent(connectionId)}${qs(anchorEntityId ? { anchor_entity_id: anchorEntityId } : {})}`,
+      { method: "PATCH", body: JSON.stringify(payload) },
+    ),
+  getConnectionsSummary: (entityId: string) =>
+    request<ConnectionSummaryResponse>(
+      `/api/v1/dossiers/entities/${encodeURIComponent(entityId)}/connections/summary`,
     ),
 
 };

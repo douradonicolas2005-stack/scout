@@ -180,3 +180,55 @@ export function profileDataToText(data: Record<string, unknown> | null | undefin
     return "";
   }
 }
+
+export const CONNECTION_NATURE_OPTIONS = [
+  { value: "declarado", label: "Declarado" },
+  { value: "observado", label: "Observado" },
+  { value: "inferido", label: "Inferido" },
+  { value: "a_confirmar", label: "A confirmar" },
+] as const;
+
+export const CONNECTION_STATUS_OPTIONS = [
+  { value: "active", label: "Ativa" },
+  { value: "needs_review", label: "Requer revisão" },
+  { value: "inactive", label: "Inativa" },
+  { value: "archived", label: "Arquivada" },
+] as const;
+
+export const CONNECTION_VERIFICATION_OPTIONS = [
+  { value: "nao_verificado", label: "Não verificado" },
+  { value: "verificado", label: "Verificado" },
+  { value: "contestado", label: "Contestado" },
+] as const;
+
+export const CONNECTION_TIME_PRECISION_OPTIONS = [
+  { value: "", label: "—" },
+  { value: "exact", label: "Exata" },
+  { value: "month", label: "Mês" },
+  { value: "year", label: "Ano" },
+  { value: "estimated", label: "Estimada" },
+  { value: "unknown", label: "Desconhecida" },
+] as const;
+
+export const CONNECTION_DIRECTION_OPTIONS = [
+  { value: "", label: "Todas" },
+  { value: "outgoing", label: "Saída" },
+  { value: "incoming", label: "Entrada" },
+  { value: "both", label: "Ambas" },
+] as const;
+
+export function connectionNatureLabel(value: string): string {
+  return CONNECTION_NATURE_OPTIONS.find((o) => o.value === value)?.label ?? value;
+}
+
+export function connectionStatusLabel(value: string): string {
+  return CONNECTION_STATUS_OPTIONS.find((o) => o.value === value)?.label ?? value;
+}
+
+export function connectionVerificationLabel(value: string): string {
+  return CONNECTION_VERIFICATION_OPTIONS.find((o) => o.value === value)?.label ?? value;
+}
+
+export function connectionTimePrecisionLabel(value: string): string {
+  return CONNECTION_TIME_PRECISION_OPTIONS.find((o) => o.value === value)?.label ?? value;
+}

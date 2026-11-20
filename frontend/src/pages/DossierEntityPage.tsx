@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, FileText, GitBranch, History, Lightbulb, Pencil, RefreshCw, SearchCheck, UserCircle2 } from "lucide-react";
+import { ConnectionsWorkspace } from "@/components/dossiers/ConnectionsWorkspace";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { PageState } from "@/components/shared/PageState";
 import { Badge } from "@/components/ui/badge";
@@ -34,7 +35,7 @@ const SECTIONS: { key: SectionKey; label: string; icon: typeof UserCircle2; futu
   { key: "overview", label: "Visão geral", icon: UserCircle2 },
   { key: "info", label: "Informações", icon: FileText },
   { key: "history", label: "Histórico", icon: History },
-  { key: "relations", label: "Relações", icon: GitBranch, future: "D4 — Connections" },
+  { key: "relations", label: "Relações", icon: GitBranch },
   { key: "evidence", label: "Pesquisa e evidências", icon: SearchCheck },
   { key: "insights", label: "Insights", icon: Lightbulb, future: "D5 — Strategic Insights" },
 ];
@@ -307,6 +308,8 @@ export function DossierEntityPage() {
             <ResearchWorkspace entityId={entity.id} />
           ) : activeSection.key === "history" ? (
             <HistoryWorkspace entityId={entity.id} />
+          ) : activeSection.key === "relations" ? (
+            <ConnectionsWorkspace entityId={entity.id} entityType={entity.entity_type} />
           ) : (activeSection.key === "overview" || activeSection.key === "info") ? (
             <div className="grid gap-4 lg:grid-cols-2">
               <Card>

@@ -6,6 +6,7 @@ from app.api.v1.endpoints import (
     audit,
     collection,
     dossiers,
+    dossiers_connections,
     dossiers_history,
     dossiers_research,
     health,
@@ -22,3 +23,4 @@ api_router.include_router(audit.router, tags=["system"])
 api_router.include_router(dossiers.router)
 api_router.include_router(dossiers_research.router)
 api_router.include_router(dossiers_history.router)
+api_router.include_router(dossiers_connections.router)
