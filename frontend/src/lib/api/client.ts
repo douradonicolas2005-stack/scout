@@ -27,6 +27,11 @@ import type {
   EvidenceListResponse,
   EvidenceUpdatePayload,
   HealthResponse,
+  InteractionCreatePayload,
+  InteractionDetail,
+  InteractionListResponse,
+  InteractionSummaryResponse,
+  InteractionUpdatePayload,
   JobExecutionResponse,
   ProcessingEventListResponse,
   ResearchSourceCreatePayload,
@@ -280,6 +285,43 @@ export const api = {
 
   getResearchSummary: (entityId: string) =>
     request<ResearchSummaryResponse>(`/api/v1/dossiers/entities/${encodeURIComponent(entityId)}/research/summary`),
+
+  // Dossiers D3 - Relationship History
+  createInteraction: (entityId: string, payload: InteractionCreatePayload) =>
+    request<InteractionDetail>(
+      `/api/v1/dossiers/entities/${encodeURIComponent(entityId)}/interactions`,
+      { method: "POST", body: JSON.stringify(payload) },
+    ),
+  listEntityInteractions: (
+    entityId: string,
+    params?: {
+      q?: string;
+      interaction_type?: string;
+      nature?: string;
+      status?: string;
+      date_from?: string;
+      date_to?: string;
+      sort?: string;
+      limit?: number;
+      offset?: number;
+    },
+  ) =>
+    request<InteractionListResponse>(
+      `/api/v1/dossiers/entities/${encodeURIComponent(entityId)}/interactions${qs(params ?? {})}`,
+    ),
+  getInteraction: (interactionId: string) =>
+    request<InteractionDetail>(
+      `/api/v1/dossiers/interactions/${encodeURIComponent(interactionId)}`,
+    ),
+  updateInteraction: (interactionId: string, payload: InteractionUpdatePayload) =>
+    request<InteractionDetail>(
+      `/api/v1/dossiers/interactions/${encodeURIComponent(interactionId)}`,
+      { method: "PATCH", body: JSON.stringify(payload) },
+    ),
+  getInteractionsSummary: (entityId: string) =>
+    request<InteractionSummaryResponse>(
+      `/api/v1/dossiers/entities/${encodeURIComponent(entityId)}/interactions/summary`,
+    ),
 
 };
 

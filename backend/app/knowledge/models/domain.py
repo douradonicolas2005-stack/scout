@@ -426,6 +426,57 @@ class ClaimConflict(Base, TimestampMixin):
     created_by: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
 
 
+# --- Dossiers D3: Relationship History ---
+
+
+class EntityInteraction(Base, TimestampMixin):
+    __tablename__ = "entity_interactions"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
+    entity_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("entities.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    interaction_type: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
+    title: Mapped[str] = mapped_column(String(300), nullable=False)
+    description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    nature: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
+    status: Mapped[str] = mapped_column(
+        String(50), nullable=False, default="registered", index=True
+    )
+    occurred_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True), index=True
+    )
+    started_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+    ended_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+    time_precision: Mapped[Optional[str]] = mapped_column(String(30), nullable=True)
+    channel: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    location_text: Mapped[Optional[str]] = mapped_column(String(300), nullable=True)
+    participants_text: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    source_locator: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    document_id: Mapped[Optional[str]] = mapped_column(
+        String(36), ForeignKey("documents.id", ondelete="SET NULL"), nullable=True
+    )
+    research_source_id: Mapped[Optional[str]] = mapped_column(
+        String(36), ForeignKey("research_sources.id", ondelete="SET NULL"), nullable=True
+    )
+    raw_record_id: Mapped[Optional[str]] = mapped_column(
+        String(36), ForeignKey("raw_records.id", ondelete="SET NULL"), nullable=True
+    )
+    claim_id: Mapped[Optional[str]] = mapped_column(
+        String(36), ForeignKey("extracted_claims.id", ondelete="SET NULL"), nullable=True
+    )
+    evidence_id: Mapped[Optional[str]] = mapped_column(
+        String(36), ForeignKey("evidence.id", ondelete="SET NULL"), nullable=True
+    )
+    confidence: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    justification: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    verification_status: Mapped[str] = mapped_column(
+        String(50), nullable=False, default=VerificationStatus.NAO_VERIFICADO.value
+    )
+    metadata_json: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON, nullable=True)
+    created_by: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+
+
 class Relationship(Base, TimestampMixin):
     __tablename__ = "relationships"
 

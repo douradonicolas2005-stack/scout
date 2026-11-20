@@ -1,4 +1,4 @@
-"""ORM models (Foundation B, D1, D2)."""
+"""ORM models (Foundation B, D1, D2, D3)."""
 
 from app.knowledge.models.domain import (  # noqa: F401
     AgentRun,
@@ -14,6 +14,7 @@ from app.knowledge.models.domain import (  # noqa: F401
     Entity,
     EntityAlias,
     EntityIdentifier,
+    EntityInteraction,
     Evidence,
     ExtractedClaim,
     ProcessingEvent,
@@ -37,6 +38,7 @@ __all__ = [
     "Entity",
     "EntityAlias",
     "EntityIdentifier",
+    "EntityInteraction",
     "Evidence",
     "ExtractedClaim",
     "ProcessingEvent",

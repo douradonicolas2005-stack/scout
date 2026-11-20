@@ -1,133 +1,65 @@
 # PROJECT_STATUS — SCOUT (Foundation V1.1)
 
-> **Data:** 2026-11-19 · **Fase:** **Subetapa H concluída** (testes, documentação e validação final). Runtime/API: `foundation-g`. Foundation V1.1 (A–H) concluída no escopo definido. **Decisão 4 confirmada** pelo usuário (recurso de referência `https://www.w3.org/news/feed/`, limites conservadores). **Não avançar automaticamente** para pós-Foundation.
+> **Data:** 2026-11-19 · **Fase:** **Subetapa H concluída** (Foundation). Runtime/API: `foundation-g`. **Dossiers D1/D2 entregues; D3 validado (incluindo smoke test de UI), formalizado e publicado.** **Decisão 4 confirmada** (`https://www.w3.org/news/feed/`, limites conservadores). **Não avançar para D4 sem planejamento técnico aprovado.**
 
 ## Resumo executivo
-SCOUT Foundation V1.1 em `scout/` (decisão **1b**, V0 substituído) está implementada e validada como monólito modular **local-first** (loopback, SQLite/Alembic, sem simulações e sem inferência automática). Subetapas A–G entregaram infraestrutura full-stack, schema de 15 entidades, integração frontend-backend de estado, Source Registry/conector real `rss_atom`, pipeline mínimo rastreável de coleta com scheduler conservador (estado canônico no banco, desabilitado por padrão) e monitoramento operacional mínimo em **System**. Subetapa H consolidou os 9 documentos, reforçou validações e registrou limitações/decisões pendentes, sem ampliar escopo funcional de domínio/inteligência/predição.
+SCOUT Foundation V1.1 em `scout/` (decisão **1b**) está implementada e validada como monólito modular **local-first** (loopback, SQLite/Alembic, sem simulações e sem inferência automática). O módulo Dossiers evoluiu incrementalmente: **D1 (Entity Profiles)** e **D2 (Research & Evidence)** entregues; **D3 (Relationship History)** implementado, revisado, validado (suíte automatizada, validação funcional assistida via API e smoke test de UI em navegador) e **publicado** (commit/push), com correção de integridade de referências opcionais aplicada na revisão. D4 permanece pendente de planejamento técnico aprovado.
 
-## Decisões aplicadas (aprovadas)
-- **1b:** substituir V0 em `scout/`.
-- **2:** SQLAlchemy 2.0 + Pydantic (schemas separados).
-- **3:** APScheduler (Background, conservador) + estado/agendamento canônico no banco.
-- **5:** Ollama — abstração + configuração + verificação de disponibilidade sob demanda; **sem inferência automática** em testes/execução.
-- **6:** `pyproject.toml` + `requirements.txt`/`requirements-dev.txt` pinados.
+## Estado de repositório e banco (verificado em 2026-11-19)
+- **Publicado:** D3 commitado e enviado a `origin/main` (`feat(dossiers): implement D3 relationship history`), incluindo migração `b6c7d8e9f0a1`, domínio/API/UI/testes, correção de integridade e documentação/auditoria atualizada.
+- **Working tree:** limpo após publicação (sem alterações D3 pendentes).
+- **DB local:** `scout/backend/data/scout.db` (gitignored) em Alembic head **`b6c7d8e9f0a1`** (migração D3 aplicada localmente). Dados locais preservados.
 
-## Decisão 4 (confirmada)
-- **4 — Recurso de referência real (confirmado e autorizado):** `https://www.w3.org/news/feed/` (RSS/Atom, público, W3C News) confirmado explicitamente pelo usuário como fonte/recurso de referência para testes/leitura/coleta real local do conector `rss_atom`.
-  - **Contexto:** URLs iniciais (`https://exemplo.org/feed.xml`, `https://<dominio>/<feed>.xml`) eram inválidas/placeholders; o recurso havia sido auto-aplicado com autorização prévia para prosseguir automaticamente e foi validado nas Subetapas E/F/G.
-  - **Restrições mantidas:** somente leitura, metadados/títulos/links/ids/datas, **máx. 5 itens**, timeouts e limite de tamanho; sem preservação de corpo/conteúdo completo nos testes/pipeline padrão (preservação condicional apenas quando explicitamente permitida por configuração/permissões/licença).
-  - **Evolução:** eventual substituição por outro RSS/Atom/HTTP GET ou inclusão de novas fontes requer nova autorização explícita e validação de termos/licenças/permissões.
+## Decisões e restrições preservadas
+- **1b:** substituir V0 em `scout/`. **2:** SQLAlchemy 2.0 + Pydantic. **3:** APScheduler conservador, DB-canonical, desabilitado por padrão. **5:** Ollama abstração/disponibilidade sob demanda, sem inferência automática. **6:** `pyproject.toml` + requirements pinados.
+- **Decisão 4:** `https://www.w3.org/news/feed/` (W3C News RSS, público, read-only, metadados, máx. 5 itens, timeouts/limites). Eventual substituição/inclusão requer nova autorização explícita.
+- **Restrições:** local-first, determinístico, rastreável, sem promoção automática de inferência a fato, sem fusão automática, sem agentes/coleta autônoma ou indiscriminada, sem dependências pagas/comerciais obrigatórias, sem paralelismo pesado, UI sem simulação.
 
-## Implementado (por subetapa)
+## Implementado
 
-### A — Estrutura e ambiente local
-- Monorepo `backend/`, `frontend/`, `docs/`, envs/gitignore/README, App Shell e Design System base (Tailwind/shadcn, temas), navegação das 8 áreas como placeholders sem simulação, cliente API e `GET /api/v1/health`.
+### Foundation V1.1 (A–H) — concluída e validada
+- Infra full-stack, schema de 15 entidades e migração `426757a848bb`, Design System/App Shell, integração frontend-backend, Source Registry/conector `rss_atom`, pipeline mínimo rastreável/scheduler conservador, monitoramento operacional mínimo em **System** e consolidação documental/validações.
 
-### B — Backend e banco de dados
-- SQLite com PRAGMAs (`foreign_keys=ON`, `journal_mode=WAL`, `busy_timeout=5000`), storage `backend/data/raw/` e `backend/data/documents/`.
-- Alembic revisão `426757a848bb` (`foundation_b_schema`) criando 15 tabelas/índices.
-- ORM (15): `sources`, `connectors`, `collection_jobs`, `collection_runs`, `raw_records`, `documents`, `extracted_claims`, `evidence`, `entities`, `relationships`, `data_changes`, `processing_events`, `agent_runs`, `audit_events` com proveniência/qualidade/versionamento e semântica de claim/verificação.
-- **Regra preservada:** inferência **não** promovida a fato automaticamente.
-- Endpoints base: `GET /api/v1/system/info`, `GET /api/v1/db/status`.
+### Dossiers V1.0 — D1: Entity Profiles (entregue)
+- Migração aditiva `b7d1e2f3a4c5`; extensão de `entities` e tabelas `entity_identifiers`/`entity_aliases`.
+- API `/api/v1/dossiers/entities*` (CRUD, pesquisa/filtros/paginação/sort, duplicidades sugeridas sem fusão) com rastreabilidade (`audit_events`, `data_changes`).
+- UI Home Dossiers e página da entidade (visão geral/informações, criação/edição, duplicidades).
 
-### C — Frontend e Design System
-- Paleta/tokens SCOUT, temas claro/escuro com persistência (`scout-theme`, padrão escuro) e bootstrap anti-flash.
-- App Shell responsivo (sidebar/drawer), breadcrumbs, pesquisa global **desabilitada/read-only** (sem simulação), `PageState`/`PageHeader`, acessibilidade básica (skip link, foco visível, labels/aria).
+### Dossiers V1.0 — D2: Research & Evidence (entregue)
+- Migrações aditivas `c1d2e3f4a5b6` → `a5b6c7d8e9f0`: `research_sources`, extensões/links de `documents` e `extracted_claims`, `claim_conflicts`, extensão de `evidence`.
+- API/serviços determinísticos para fontes, documentos, afirmações, evidências, conflitos e resumo do Research Workspace; guarda epistemológica (sem promoção automática a fato).
+- UI Research Workspace integrado à página da entidade, com estados reais e sem simulação.
 
-### D — Integração frontend-backend
-- Tipos/cliente API para `health`, `system/info`, `db/status`.
-- Dashboard e System consomem estado real com tratamento de loading/erro/vazio/sucesso (sem simular funcionalidades).
+### Dossiers V1.0 — D3: Relationship History (implementado em working tree, validado)
+- **Modelo/migração:** `b6c7d8e9f0a1_d3_relationship_history` cria `entity_interactions` (natureza `declarado|observado|interpretado|a_confirmar`, status, temporalidade/precisão, contexto, participantes descritivos, proveniência/referências opcionais, confiança/justificativa, verificação) com FKs/índices. Distinto de D2; **não usa `relationships`** (reservado a D4).
+- **Backend/API:** `history_service`, schemas e endpoints em `/api/v1/dossiers` (`POST/GET /entities/{entity_id}/interactions`, `GET /entities/{entity_id}/interactions/summary`, `GET/PATCH /interactions/{interaction_id}`) com validações, filtros/ordenação/paginação, resumo determinístico e rastreabilidade (`audit_events`, `data_changes`).
+- **Frontend:** `HistoryWorkspace` na seção **Histórico** (timeline, filtros, registro, detalhe, ações explícitas de estado, proveniência opcional, estados reais). D4/D5 permanecem placeholders.
+- **Correção aplicada na revisão:** validação explícita de existência de referências opcionais (`document_id`, `research_source_id`, `raw_record_id`, `claim_id`, `evidence_id`) no serviço para garantir integridade consistente.
 
-### E — Source Registry e conectores
-- CRUD/ativação de fontes e registro/sincronização de conectores em `/api/v1/ingestion/*` com validação e coerência `status`↔`is_active`.
-- Conectores plugáveis + **`rss_atom`** real (RSS/Atom, read-only, metadados/títulos, máx. 5 itens, limites/timeouts).
-- `POST /sources/{id}/test-connection` real com rastreabilidade (`audit_events`, `processing_events stage=connection_test`), sem jobs/runs de coleta.
+## Validações executadas (revisão D3, 2026-11-19)
 
-### F — Scheduler e pipeline de ingestão (mínimo)
-- Pipeline (`app/ingestion/collection.py`): `collection_jobs`/`collection_runs`, estágios rastreáveis, coleta real via conector registrado, normalização/validação básica, deduplicação, persistência de `raw_records`, `data_changes`, `processing_events`, atualização de estados/métricas/`last_collected_at`, retries conservadores.
-- Preservação condicional de original em `backend/data/raw/<source_id>/` apenas quando permitido por config/permissões/licença.
-- Scheduler (`app/ingestion/scheduler.py`): APScheduler Background, **desabilitado por padrão**, estado/agendamento canônico no banco, reidratação controlada, sem paralelismo pesado; execução manual via API.
-- Endpoints: criar/listar/consultar/executar jobs, listar runs e eventos.
+| # | Verificação | Resultado |
+|---|---|---|
+| 1 | Migrações em DB temporário | **OK** — `alembic upgrade head` até `b6c7d8e9f0a1` |
+| 2 | Estado migração DB local | **OK** — `b6c7d8e9f0a1 (head)` |
+| 3 | Backend — pytest (completo) | **OK** — **30 passed** (Foundation + D1 + D2 + D3) |
+| 4 | Backend — ruff | **OK** (All checks passed) |
+| 5 | Backend — mypy | **OK** (Success, 70 source files) |
+| 6 | Frontend — typecheck | **OK** |
+| 7 | Frontend — eslint | **OK** |
+| 8 | Frontend — build | **OK** (1632 módulos) |
+| 9 | Validação funcional assistida D3 (API/TestClient, DB temporário) | **OK** — criar/listar/editar, 4 naturezas, filtros/ordenação, referências opcionais válidas, atualizações explícitas, persistência/rastreabilidade e resumo |
+| 10 | Smoke test de UI (navegador, Vite+backend local) | **OK** — Histórico abre com resumo/timeline/lista, 4 naturezas e estados visíveis, detalhe com proveniência/referências, ações explícitas de estado, sem erros de console e endpoints de interações com 200; dados persistidos/rastreados refletidos na UI |
 
-### G — Source Manager e monitoramento (mínimo)
-- `GET /api/v1/system/audit-events` (leitura de auditoria recente).
-- UI **System** (`frontend/src/pages/SystemPage.tsx`) com visão real de conectores/fontes/jobs/runs/eventos/auditoria e controles mínimos (testar conexão, criar job com `execute_now`, executar job, inspecionar histórico/erros), com estados loading/erro/vazio/sucesso e sem simulação.
-- Fase de runtime: `foundation-g`.
-
-### H — Testes, documentação e validação final
-- Consolidação/alinhamento dos 9 documentos com estado implementado (A–G), lacunas, restrições e decisões pendentes.
-- Validações finais backend/frontend e correções de consistência detectadas.
-- Relatório de encerramento da Foundation V1.1 (este documento).
-
-## Verificações finais executadas (Subetapa H)
-
-| # | Verificação | Comando / método | Resultado |
-|---|---|---|---|
-| 1 | Backend — lint | `cd backend && .venv/bin/ruff check app tests` | **OK** (All checks passed) |
-| 2 | Backend — tipagem | `.venv/bin/mypy app` | **OK** (Success, 53 source files) |
-| 3 | Backend — testes (regressão + integração/pipeline real) | `.venv/bin/python -m pytest -q` | **18 passed** (0.93s) |
-| 4 | Frontend — tipagem | `cd frontend && npm run typecheck` | **OK** |
-| 5 | Frontend — lint | `npm run lint` | **OK** |
-| 6 | Frontend — build | `npm run build` | **OK** (1627 módulos) |
-| 7 | Schema/migração | Reutilização do schema existente (sem nova migração) | **OK** — `426757a848bb foundation_b_schema` |
-
-## Dossiers V1.0 — D1: Entity Profiles (implementado, autorizado)
-
-- **Modelo/migração (aditiva):** extensão de `entities` (`description`, `profile_status`, `primary_location`, `profile_data`) e novas tabelas `entity_identifiers`, `entity_aliases` (Alembic `b7d1e2f3a4c5`, filha de `426757a848bb`), com índices/FKs; sem duplicação de estruturas de proveniência.
-- **Backend/API:** `/api/v1/dossiers/entities` — criar, listar/pesquisar (nome/alternativo/identificador, tipo, status, verificação, atualização, paginação/sort), detalhar, atualizar, sugerir duplicidades (somente leitura, sem fusão automática). Rastreabilidade: `audit_events` (`dossier.entity.create/update`) e `data_changes` (`entities`).
-- **Frontend:** home Dossiers com pesquisa/filtros/listas e blocos de recentes (API + consultas recentes no cliente, sem simulação); página `/dossiers/:entityId` com cabeçalho, seções Visão geral/Informações funcionais e seções futuras (D3–D5) sem simulação; criação/edição e painel de duplicidades.
-- **Documentação:** `docs/modules/dossiers/{DOSSIERS_SPECIFICATION,DATA_MODEL,API,UI,TEST_PLAN,CHANGELOG}.md`.
-- **Validação D1:** `ruff check --no-cache app tests` OK, `mypy --cache-dir /tmp/opencode-scout-mypy-cache app` OK (58 arquivos), `pytest -v` **23 passed** (inclui 5 novos testes D1 em DB temporário + regressão Foundation), frontend `typecheck/lint/build` OK (1629 módulos). Migração aplicada no DB local (`alembic upgrade head` → `b7d1e2f3a4c5`).
-
-## Dossiers V1.0 — D2: Research & Evidence (implementado, autorizado; passo 10)
-
-- **Modelo/migrações (aditivas, pós-`b7d1e2f3a4c5`):** `research_sources` (M1 `c1d2e3f4a5b6`), extensão de `documents` + `document_entity_links` (M2 `d2e3f4a5b6c7`), extensão de `extracted_claims` + `claim_entity_links` (M3 `e3f4a5b6c7d8`), `claim_conflicts` (M4 `f4a5b6c7d8e9`), extensão de `evidence` (M5 `a5b6c7d8e9f0`). Cadeia validada com `alembic upgrade head` em banco temporário (head `a5b6c7d8e9f0`); **não aplicada ao DB local** nesta etapa.
-- **Backend/API (determinístico, manual-first):** serviços/schemas/endpoints sob `/api/v1/dossiers` para fontes de pesquisa, documentos/referências e vínculos a entidades, afirmações (classificação epistemológica/verificação/confiança/justificativa), evidências (relação suporta/contesta/contextualiza, âncoras/localização) e conflitos entre afirmações (registro/atualização explícita, recomputo determinístico), além de resumo do Research Workspace. Rastreabilidade via `audit_events`/`data_changes` e `processing_events` quando aplicável. Sem promoção automática de inferência/hipótese/previsão a fato, sem coleta/agentes automáticos e sem dependências pagas/comerciais obrigatórias.
-- **Frontend:** Research Workspace na seção “Pesquisa e evidências” da página da entidade (`/dossiers/:entityId`) com abas de resumo, documentos, fontes, afirmações/evidências e conflitos, formulários/estados reais e rotulagem epistemológica; D3–D5 permanecem como placeholders sem simulação.
-- **Testes:** novo `backend/tests/unit/test_dossiers_research.py` (migração D2, CRUD/listagens, vínculos/âncoras, guarda epistemológica, evidências, conflitos e resumo) executado em DB temporário/offline.
-- **Documentação:** `docs/modules/dossiers/{DOSSIERS_DATA_MODEL,API,UI,TEST_PLAN,CHANGELOG}.md` e docs de projeto (`DATA_MODEL`, `API`, `ROADMAP`, `PROJECT_STATUS`) atualizados conforme escopo entregue.
-- **Validação D2 (regressão incluída):** backend `ruff check --no-cache app tests` OK, `mypy --config-file pyproject.toml app` OK (66 arquivos), `pytest -v` **27 passed** (Foundation + D1 + D2, incluindo 4 novos testes D2; suíte executada nesta sessão com testes legados de acesso HTTP real ao recurso da Decisão 4 passando no ambiente). Frontend `npm run typecheck` OK, `npm run lint` OK, `npm run build` OK (1631 módulos).
-
-**Notas:**
-- D2 implementado no working tree, **sem commit/push** e **sem aplicar migrações D2 ao `scout/backend/data/scout.db` local** (head local permanece `b7d1e2f3a4c5`). Arquivos de storage/dados permanecem gitignored.
-- Escopo restrito a D2: D3–D5/D6, fusão automática, derivação automática a partir de ingestão, agentes/coleta autônoma e integrações comerciais obrigatórias permanecem fora de escopo.
-
-## Arquivos alterados/criados relevantes (estado consolidado)
-
-### Subetapa H (documentação/validação)
-- **Alterados:** `README.md`, `docs/VISION.md`, `docs/ARCHITECTURE.md`, `docs/DATA_MODEL.md`, `docs/DESIGN_SYSTEM.md`, `docs/API.md`, `docs/INGESTION_ARCHITECTURE.md`, `docs/SECURITY.md`, `docs/ROADMAP.md`, `docs/PROJECT_STATUS.md`, `frontend/src/pages/SystemPage.tsx` (correção estrutural/consistência da UI de monitoramento para estado válido de build).
-
-### Subetapas anteriores (resumo)
-- **G:** `backend/app/api/v1/{schemas,endpoints}/audit.py`, `backend/app/api/router.py`, endpoints `health/system`/`main`/scheduler (fase), testes de sistema/health, `frontend/src/lib/api/{types,client}.ts`, `frontend/src/pages/SystemPage.tsx`, docs.
-- **F:** `backend/app/ingestion/{collection.py,scheduler.py,pipeline}`, schemas/endpoints de jobs/runs/eventos, testes de pipeline, integração API/lifespan, docs.
-- **E:** schemas/endpoints de ingestão, `ingestion/bootstrap.py`, `connectors/rss_atom.py`, testes de registry/conector, docs.
-- **D:** integração frontend tipada (`api/types,client`, Dashboard/System).
-- **C:** consolidação frontend/Design System/App Shell/componentes/estados.
-- **B:** 15 modelos ORM, migração `426757a848bb`, endpoints `system/info` e `db/status`, storage/pragmas, testes DB/estado.
-- **A:** estrutura base backend/frontend/docs e esqueleto de camadas/navegação.
-
-## Problemas encontrados e correções (síntese)
-- **G/H (frontend):** erros de TypeScript/lint/build em `SystemPage.tsx` (uso de `toLower()` e `res.run` possivelmente nulo) e corrupção de estrutura JSX em patch programático subsequente; corrigidos com tratamento defensivo e restauração de componente íntegro. Resultado: `typecheck/lint/build` **OK**.
-- **F:** ajustes de `ruff/mypy`, compatibilidade `Optional` (Python 3.9) e re-fetch após rollback no tratamento de erro do pipeline; suíte **OK**.
-- **E:** URLs iniciais da Decisão 4 inválidas/placeholders (auto-aplicação autorizada de recurso público, posteriormente confirmado pelo usuário) e ajustes de lint/tipagem; testes reais **OK**.
-- **B–D:** correções pontuais de migração/env, tipagem/lint e reaplicação de edições frontend; verificações **OK** nas respectivas etapas.
-- **Estado atual:** nenhuma falha de verificação remanescente conhecida no escopo validado.
+## Problemas encontrados e correções (revisão D3)
+- **Integridade de referências opcionais (corrigido):** interações aceitavam IDs de referência inexistentes no fluxo validado (risco de inconsistência quando FKs não efetivamente aplicadas pelo contexto de conexão). **Correção:** validação explícita de existência das referências opcionais no serviço (`history_service`) em criação/atualização, com retorno 404 para referência inexistente; teste D3 atualizado. Revalidação verde.
 
 ## Limitações e pendências
-- **Decisão 4:** confirmada (`https://www.w3.org/news/feed/`, `rss_atom`, limites conservadores). Eventual substituição/inclusão de novas fontes requer autorização explícita.
-- **Banco local:** preparar com `cd backend && .venv/bin/alembic upgrade head` (sem novas migrações em E/F/G/H).
-- **Monitoramento/UI (mínimo):** implementado em **System**; sem CRUD completo de fontes no frontend, sem controles avançados (cancelamento/edição/agendamento rico, filtros/paginação/métricas consolidadas), sem UI dedicada fora de System.
-- **Pipeline/domínio:** sem `documents` derivados, extração/claims/evidências/entidades/relacionamentos e encaminhamento completo; sem inferência automática e sem promoção de inferência a fato.
-- **Scheduler:** conservador, DB-canonical, reidratação controlada disponível, porém **desabilitado por padrão** (`scheduler_enabled=false`).
-- **Módulos funcionais/inteligência/predição/simulação:** não implementados (8 áreas como placeholders, sem simulação).
-- **Testes:** sem E2E de navegador e sem suíte automatizada específica adicional para a UI/auditoria de G além de validação estática/build.
+- **D4–D6:** pendentes (Connections/`relationships`, Strategic Insights, consolidação). D4 aguarda planejamento técnico aprovado antes de qualquer implementação.
+- **Banco local:** migrado para `b6c7d8e9f0a1` (gitignored); dados locais preservados.
+- Smoke test de UI realizado em cenário controlado local; automação E2E dedicada permanece opcional para evolução futura.
+- Demais limitações de Foundation/pós-Foundation e riscos previamente registrados permanecem aplicáveis.
 
-## Riscos observados
-- Python 3.9.6 (EOL upstream) — funcional; recomenda-se padronizar versão suportada futuramente.
-- RAM 8 GB: manter concorrência controlada e dependências mínimas (sem inferência pesada/paralelismo).
-- Dependências de desenvolvimento podem requerer auditoria/atualização em etapa dedicada.
-
-## Conclusão (Foundation V1.1)
-- **Escopo A–H:** concluído e validado conforme critérios da Foundation (infraestrutura local, rastreabilidade, controles conservadores, contratos reais, sem simulações e sem inferência automática).
-- **Próximo passo:** aguardando **aceite/autorização explícita do usuário** para evolução pós-Foundation (controles/monitoramento avançados, domínio/extração/grafo, módulos funcionais, inteligência/predição) ou demais ações (ex.: correções, publicação/commit). Não avançar automaticamente.
-- **Não avançarei automaticamente.**
+## Conclusão
+- **Foundation V1.1, D1 e D2:** preservados e compatíveis (regressão verde).
+- **D3:** implementado, revisado, validado (automação, API assistida e smoke test de UI) e **publicado** em `origin/main`, com correção de integridade aplicada. **Aprovado no escopo definido. Não avançar automaticamente para D4; planejamento técnico de D4 requerido.**

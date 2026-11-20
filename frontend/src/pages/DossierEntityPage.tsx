@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { HistoryWorkspace } from "@/components/dossiers/HistoryWorkspace";
 import { ResearchWorkspace } from "@/components/dossiers/ResearchWorkspace";
 import { api } from "@/lib/api/client";
 import type { DuplicateCandidatesResponse, EntityDetail, EntitySummary, EntityUpdatePayload } from "@/lib/api/types";
@@ -32,7 +33,7 @@ type SectionKey = "overview" | "info" | "history" | "relations" | "evidence" | "
 const SECTIONS: { key: SectionKey; label: string; icon: typeof UserCircle2; future?: string }[] = [
   { key: "overview", label: "Visão geral", icon: UserCircle2 },
   { key: "info", label: "Informações", icon: FileText },
-  { key: "history", label: "Histórico", icon: History, future: "D3 — Relationship History" },
+  { key: "history", label: "Histórico", icon: History },
   { key: "relations", label: "Relações", icon: GitBranch, future: "D4 — Connections" },
   { key: "evidence", label: "Pesquisa e evidências", icon: SearchCheck },
   { key: "insights", label: "Insights", icon: Lightbulb, future: "D5 — Strategic Insights" },
@@ -304,6 +305,8 @@ export function DossierEntityPage() {
 
           {activeSection.key === "evidence" ? (
             <ResearchWorkspace entityId={entity.id} />
+          ) : activeSection.key === "history" ? (
+            <HistoryWorkspace entityId={entity.id} />
           ) : (activeSection.key === "overview" || activeSection.key === "info") ? (
             <div className="grid gap-4 lg:grid-cols-2">
               <Card>

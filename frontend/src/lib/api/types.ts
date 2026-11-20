@@ -598,3 +598,85 @@ export interface ResearchSummaryResponse {
   claims_by_verification: Record<string, number>;
 }
 
+// Dossiers D3 - Relationship History
+export type InteractionNature = "declarado" | "observado" | "interpretado" | "a_confirmar" | string;
+
+export interface InteractionCreatePayload {
+  interaction_type: string;
+  title: string;
+  description?: string | null;
+  nature: string;
+  status?: string | null;
+  occurred_at?: string | null;
+  started_at?: string | null;
+  ended_at?: string | null;
+  time_precision?: string | null;
+  channel?: string | null;
+  location_text?: string | null;
+  participants_text?: string | null;
+  source_locator?: string | null;
+  document_id?: string | null;
+  research_source_id?: string | null;
+  raw_record_id?: string | null;
+  claim_id?: string | null;
+  evidence_id?: string | null;
+  confidence?: number | null;
+  justification?: string | null;
+  verification_status?: string | null;
+  metadata_json?: Record<string, unknown> | null;
+  created_by?: string | null;
+}
+
+export type InteractionUpdatePayload = Partial<InteractionCreatePayload>;
+
+export interface InteractionSummary {
+  id: string;
+  entity_id: string;
+  interaction_type: string;
+  title: string;
+  description: string | null;
+  nature: InteractionNature;
+  status: string;
+  occurred_at: string | null;
+  started_at: string | null;
+  ended_at: string | null;
+  time_precision: string | null;
+  channel: string | null;
+  location_text: string | null;
+  verification_status: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface InteractionDetail extends InteractionSummary {
+  participants_text: string | null;
+  source_locator: string | null;
+  document_id: string | null;
+  research_source_id: string | null;
+  raw_record_id: string | null;
+  claim_id: string | null;
+  evidence_id: string | null;
+  confidence: number | null;
+  justification: string | null;
+  metadata_json: Record<string, unknown> | null;
+  created_by: string | null;
+}
+
+export interface InteractionListResponse {
+  items: InteractionSummary[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+export interface InteractionSummaryResponse {
+  entity_id: string;
+  interactions_count: number;
+  pending_confirmation_or_review: number;
+  by_nature: Record<string, number>;
+  by_type: Record<string, number>;
+  by_status: Record<string, number>;
+  earliest_occurred_at: string | null;
+  latest_occurred_at: string | null;
+}
+

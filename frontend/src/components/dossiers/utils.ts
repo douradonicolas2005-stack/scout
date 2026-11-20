@@ -22,6 +22,42 @@ export const VERIFICATION_OPTIONS = [
   { value: "invalido", label: "Inválido" },
 ] as const;
 
+export const INTERACTION_NATURE_OPTIONS = [
+  { value: "declarado", label: "Declarado" },
+  { value: "observado", label: "Observado" },
+  { value: "interpretado", label: "Interpretado" },
+  { value: "a_confirmar", label: "A confirmar" },
+] as const;
+
+export const INTERACTION_STATUS_OPTIONS = [
+  { value: "registered", label: "Registrado" },
+  { value: "confirmed", label: "Confirmado" },
+  { value: "needs_review", label: "Requer revisão" },
+  { value: "contested", label: "Contestado" },
+  { value: "cancelled", label: "Cancelado" },
+  { value: "archived", label: "Arquivado" },
+] as const;
+
+export const INTERACTION_TYPE_OPTIONS = [
+  { value: "meeting", label: "Reunião" },
+  { value: "call", label: "Chamada" },
+  { value: "email", label: "E-mail" },
+  { value: "message", label: "Mensagem" },
+  { value: "event", label: "Evento" },
+  { value: "visit", label: "Visita" },
+  { value: "transaction_contact", label: "Contato transacional" },
+  { value: "note", label: "Nota" },
+  { value: "other", label: "Outro" },
+] as const;
+
+export const TIME_PRECISION_OPTIONS = [
+  { value: "exact", label: "Exata" },
+  { value: "date", label: "Data" },
+  { value: "month", label: "Mês" },
+  { value: "approximate", label: "Aproximada" },
+  { value: "unknown", label: "Desconhecida" },
+] as const;
+
 export function entityTypeLabel(value: string): string {
   return ENTITY_TYPE_OPTIONS.find((o) => o.value === value)?.label ?? value;
 }
@@ -32,6 +68,22 @@ export function profileStatusLabel(value: string): string {
 
 export function verificationLabel(value: string): string {
   return VERIFICATION_OPTIONS.find((o) => o.value === value)?.label ?? value;
+}
+
+export function interactionNatureLabel(value: string): string {
+  return INTERACTION_NATURE_OPTIONS.find((o) => o.value === value)?.label ?? value;
+}
+
+export function interactionStatusLabel(value: string): string {
+  return INTERACTION_STATUS_OPTIONS.find((o) => o.value === value)?.label ?? value;
+}
+
+export function interactionTypeLabel(value: string): string {
+  return INTERACTION_TYPE_OPTIONS.find((o) => o.value === value)?.label ?? value;
+}
+
+export function timePrecisionLabel(value: string): string {
+  return TIME_PRECISION_OPTIONS.find((o) => o.value === value)?.label ?? value;
 }
 
 export function fmtDate(value: string | null | undefined): string {
